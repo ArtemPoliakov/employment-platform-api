@@ -13,7 +13,7 @@ namespace api.Data
     /// Database context for the application
     /// Manages DDL and DML operations for the whole app
     /// </summary>
-    public class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
+    public class ApplicationDbContext : IdentityDbContext<AppUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
