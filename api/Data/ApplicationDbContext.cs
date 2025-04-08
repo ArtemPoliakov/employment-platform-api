@@ -31,8 +31,8 @@ namespace api.Data
 
             List<IdentityRole> roles =
             [
-                new IdentityRole { Name = "Jobseeker", NormalizedName = "JOBSEEKER"},
-                new IdentityRole { Name = "Company", NormalizedName = "COMPANY"},
+                new IdentityRole { Name = "JOBSEEKER", NormalizedName = "JOBSEEKER"},
+                new IdentityRole { Name = "COMPANY", NormalizedName = "COMPANY"},
             ];
             modelBuilder.Entity<IdentityRole>().HasData(roles);
 

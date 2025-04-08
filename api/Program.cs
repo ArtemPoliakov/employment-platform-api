@@ -1,6 +1,8 @@
 using api.Data;
+using api.Interfaces;
 using api.Middleware;
 using api.Models;
+using api.Service;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -90,9 +92,9 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
-
 builder.Host.UseSerilog();
 
+builder.Services.AddScoped<ITockenService, TockenService>();
 
 var app = builder.Build();
 
