@@ -13,7 +13,7 @@ namespace api.Models
     public class Company
     {
         public Guid Id { get; set; }
-        public Guid AppUserId { get; set; }
+        public string AppUserId { get; set; }
         public AppUser AppUser { get; set; }
         public List<Vacancy> Vacancies { get; set; } = [];
         public string SelfDescription { get; set; } = string.Empty;

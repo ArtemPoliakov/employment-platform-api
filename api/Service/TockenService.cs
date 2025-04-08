@@ -28,7 +28,7 @@ namespace api.Service
             var roles = await _userManager.GetRolesAsync(appUser);
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, appUser.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, appUser.Id),
                 new Claim(JwtRegisteredClaimNames.Email, appUser.Email),
                 new Claim(JwtRegisteredClaimNames.GivenName, appUser.UserName),
             };
