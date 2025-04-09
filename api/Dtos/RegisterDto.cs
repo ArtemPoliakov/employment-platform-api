@@ -14,14 +14,14 @@ namespace api.Dtos
         [Required]
         [MinLength(3)]
         [MaxLength(30)]
-        public string? UserName { get; set; }
+        public string UserName { get; set; }
         [Required]
         [EmailAddress]
-        public string? Email { get; set; }
+        public string Email { get; set; }
         [Required]
-        public string? Password { get; set; }
+        public string Password { get; set; }
         [Required]
-        [Phone]
-        public string? PhoneNumber { get; set; }
+        [RegularExpression(@"^\+\d{10,15}$", ErrorMessage = "Phone number must be in international format like +123456789012")]
+        public string PhoneNumber { get; set; }
     }
 }

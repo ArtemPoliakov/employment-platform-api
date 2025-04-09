@@ -19,5 +19,16 @@ namespace api.Mappers
                 PhoneNumber = registerDto.PhoneNumber,
             };
         }
+
+        public static UserPublicDataDto ToAppUserPublicDataDto(this AppUser appUser)
+        {
+            return new UserPublicDataDto
+            {
+                Id = appUser.Id,
+                UserName = appUser.UserName,
+                Email = appUser.Email,
+                PhoneNumber = appUser.PhoneNumber,
+            };
+        }
     }
 }

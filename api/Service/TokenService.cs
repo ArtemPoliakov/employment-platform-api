@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace api.Service
 {
-    public class TockenService : ITockenService
+    public class TockenService : ITokenService
     {
         private readonly IConfiguration _config;
         private readonly UserManager<AppUser> _userManager;
@@ -23,7 +23,7 @@ namespace api.Service
             _userManager = userManager;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]));
         }
-        public async Task<string> CreateTocken(AppUser appUser)
+        public async Task<string> CreateToken(AppUser appUser)
         {
             var roles = await _userManager.GetRolesAsync(appUser);
             var claims = new List<Claim>

@@ -94,7 +94,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Host.UseSerilog();
 
-builder.Services.AddScoped<ITockenService, TockenService>();
+builder.Services.AddScoped<ITokenService, TockenService>();
 
 var app = builder.Build();
 
