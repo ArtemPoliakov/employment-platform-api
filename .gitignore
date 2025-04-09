@@ -5,3 +5,5 @@
 *.csproj*
 *appsettings*
 *bin*
+*Migrations*
+*logs*
