@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using api.Dtos;
+using api.Enums;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
@@ -49,6 +50,7 @@ namespace api.Controllers
                             Email = appUser.Email,
                             UserName = appUser.UserName,
                             PhoneNumber = appUser.PhoneNumber,
+                            Role = registerDto.SafeRole.ToString().ToUpper(),
                             Token = await _tokenService.CreateToken(appUser)
                         }
                     );
@@ -60,12 +62,12 @@ namespace api.Controllers
             }
             else
             {
-                return StatusCode(500, createdUser.Errors);
+                return StatusCode(400, createdUser.Errors);
             }
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Register([FromBody] LoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -77,13 +79,14 @@ namespace api.Controllers
             var result = await _signinManager.CheckPasswordSignInAsync(appUser, loginDto.Password, false);
             if (!result.Succeeded)
                 return Unauthorized("Invalid username and/or password");
-
+            var roles = await _userManager.GetRolesAsync(appUser);
             return Ok(
                 new NewUserDto
                 {
                     UserName = appUser.UserName,
                     Email = appUser.Email,
                     PhoneNumber = appUser.PhoneNumber,
+                    Role = roles.First(),
                     Token = await _tokenService.CreateToken(appUser)
                 }
             );
@@ -99,8 +102,8 @@ namespace api.Controllers
             var appUser = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == UserName.ToLower());
             if (appUser == null)
                 return NotFound("User not found");
-
-            return Ok(appUser.ToAppUserPublicDataDto());
+            var roles = await _userManager.GetRolesAsync(appUser);
+            return Ok(appUser.ToAppUserPublicDataDto(roles.First()));
         }
 
         [HttpPut("edit")]
@@ -115,6 +118,7 @@ namespace api.Controllers
             var appUser = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == updateAccountDataDto.Id.ToString());
             if (appUser == null)
                 return NotFound("User not found");
+            var roles = await _userManager.GetRolesAsync(appUser);
 
             if (updateAccountDataDto.UserName != null) appUser.UserName = updateAccountDataDto.UserName;
             if (updateAccountDataDto.Email != null) appUser.Email = updateAccountDataDto.Email;
@@ -122,9 +126,40 @@ namespace api.Controllers
 
             var result = await _userManager.UpdateAsync(appUser);
             if (result.Succeeded)
-                return Ok(appUser.ToAppUserPublicDataDto());
+                return Ok(appUser.ToAppUserPublicDataDto(roles.First()));
 
             return StatusCode(500, result.Errors);
+        }
+
+        [HttpPut("changePassword")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var appUser = await _userManager.FindByNameAsync(changePasswordDto.UserName);
+            if (appUser == null)
+                return NotFound("User not found");
+
+            var result = await _userManager
+            .ChangePasswordAsync(appUser, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+
+            if (result.Succeeded)
+            {
+                var roles = await _userManager.GetRolesAsync(appUser);
+                return Ok(
+                        new NewUserDto
+                        {
+                            Email = appUser.Email,
+                            UserName = appUser.UserName,
+                            PhoneNumber = appUser.PhoneNumber,
+                            Role = roles.First(),
+                            Token = await _tokenService.CreateToken(appUser)
+                        }
+                    );
+            }
+            return BadRequest("Wrong pasword!");
         }
     }
 }

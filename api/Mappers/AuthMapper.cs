@@ -20,7 +20,7 @@ namespace api.Mappers
             };
         }
 
-        public static UserPublicDataDto ToAppUserPublicDataDto(this AppUser appUser)
+        public static UserPublicDataDto ToAppUserPublicDataDto(this AppUser appUser, string role)
         {
             return new UserPublicDataDto
             {
@@ -28,6 +28,7 @@ namespace api.Mappers
                 UserName = appUser.UserName,
                 Email = appUser.Email,
                 PhoneNumber = appUser.PhoneNumber,
+                Role = role
             };
         }
     }
