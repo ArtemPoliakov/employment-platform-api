@@ -2,6 +2,7 @@ using api.Data;
 using api.Interfaces;
 using api.Middleware;
 using api.Models;
+using api.Repository;
 using api.Service;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -95,6 +96,7 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 builder.Services.AddScoped<ITokenService, TockenService>();
+builder.Services.AddScoped<IJobseekerRepository, JobseekerRepository>();
 
 var app = builder.Build();
 

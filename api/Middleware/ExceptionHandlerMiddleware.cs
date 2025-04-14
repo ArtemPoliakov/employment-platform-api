@@ -40,7 +40,8 @@ namespace api.Middleware
                 await context.Response.WriteAsync(JsonSerializer.Serialize(new
                 {
                     error = ex.Message,
-                    details = "An unexpected error occurred. "
+                    details = "An unexpected error occurred. ",
+                    stackTrace = ex.StackTrace
                 }));
             }
         }
