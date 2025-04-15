@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.JobseekerDto;
+using api.Dtos.JobseekerDto.ElasticDtos;
 using api.Models;
 
 namespace api.Mappers
@@ -83,6 +84,18 @@ namespace api.Mappers
             jobseeker.Preferences = editJobseekerDto.Preferences ?? jobseeker.Preferences;
             jobseeker.SelfDescription = editJobseekerDto.SelfDescription ?? jobseeker.SelfDescription;
             jobseeker.IsEmployed = editJobseekerDto.IsEmployed ?? jobseeker.IsEmployed;
+        }
+
+        public static JobseekerElasticDto ToJobseekerElasticDto(this Jobseeker jobseeker)
+        {
+            return new JobseekerElasticDto
+            {
+                Id = jobseeker.AppUserId,
+                Profession = jobseeker.Profession,
+                Education = jobseeker.Education.ToString().ToLower(),
+                Location = jobseeker.Location,
+                Experience = jobseeker.Experience
+            };
         }
     }
 }

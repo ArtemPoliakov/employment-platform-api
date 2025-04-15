@@ -12,5 +12,6 @@ namespace api.Interfaces
         Task<Jobseeker> UpdateAsync(Jobseeker jobseeker);
         Task<bool> JobseekerExistsByUserId(string userId);
         Task<Jobseeker?> GetJobseekerByUserId(string userId);
+        Task<List<Jobseeker>> GetAllJobseekersAsync();
     }
 }

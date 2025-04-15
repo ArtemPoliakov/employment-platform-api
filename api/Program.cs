@@ -1,3 +1,4 @@
+using api.Configuration;
 using api.Data;
 using api.Interfaces;
 using api.Middleware;
@@ -97,6 +98,9 @@ builder.Host.UseSerilog();
 
 builder.Services.AddScoped<ITokenService, TockenService>();
 builder.Services.AddScoped<IJobseekerRepository, JobseekerRepository>();
+
+builder.Services.Configure<ElasticSettings>(builder.Configuration.GetSection("ElasticSettings"));
+builder.Services.AddSingleton<IJobseekerElasticService, JobseekerElasticService>();
 
 var app = builder.Build();
 

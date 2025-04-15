@@ -32,6 +32,12 @@ namespace api.Repository
             }
         }
 
+        public async Task<List<Jobseeker>> GetAllJobseekersAsync()
+        {
+            var jobseekers = await _dbContext.Jobseekers.ToListAsync();
+            return jobseekers;
+        }
+
         public Task<Jobseeker?> GetJobseekerByUserId(string userId)
         {
             return _dbContext.Jobseekers.FirstOrDefaultAsync(js => js.AppUserId.ToString().Equals(userId));

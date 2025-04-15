@@ -1,29 +1,14 @@
-version: "3.4"
 
 services:
-  api:
-    build:
-      context: ./api
-    container_name: "api"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+  elasticsearch:
+    container_name: els
+    image: elasticsearch:8.15.0
     ports:
-      - "5000:5000"
-    depends_on:
-      - sqlserver
-
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-CU12-ubuntu-20.04
-    container_name: "SQL_server"
-    environment:
-      MSSQL_PID: "Express"
-      ACCEPT_EULA: "Y"
-      SA_PASSWORD: ${SA_PASSWORD}
-      MSSQL_DB: ${MSSQL_DB:-mydatabase}
-    ports:
-      - "1433:1433"
+      - "9200:9200"
     volumes:
-      - sqlserver_data_employment_platform_api:/var/opt/mssql
-
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
 volumes:
-  sqlserver_data_employment_platform_api:
+  elasticsearch-data:
