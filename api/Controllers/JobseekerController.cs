@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using api.Data;
 using api.Dtos.JobseekerDto;
 using api.Extensions;
+using api.Helpers;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
@@ -20,10 +21,14 @@ namespace api.Controllers
     public class JobseekerController : ControllerBase
     {
         private readonly IJobseekerRepository _jobseekerRepository;
+        private readonly IJobseekerElasticService _jobseekerElasticService;
         private readonly UserManager<AppUser> _userManager;
-        public JobseekerController(IJobseekerRepository jobseekerRepository, UserManager<AppUser> userManager)
+        public JobseekerController(IJobseekerRepository jobseekerRepository,
+                                   UserManager<AppUser> userManager,
+                                   IJobseekerElasticService jobseekerElasticService)
         {
             _jobseekerRepository = jobseekerRepository;
+            _jobseekerElasticService = jobseekerElasticService;
             _userManager = userManager;
         }
 
@@ -83,6 +88,23 @@ namespace api.Controllers
             JobseekerMapper.MapChangesToJobseeker(jobseeker, updateJobseekerDto);
             var editedJobseeker = await _jobseekerRepository.UpdateAsync(jobseeker);
             return Ok(editedJobseeker.ToJobseekerDto());
+        }
+
+        [HttpGet("search")]
+        [Authorize]
+        public async Task<IActionResult> SearchJobseekers([FromQuery] JobseekerQueryDto query)
+        {
+            var jobseekersDocs = await _jobseekerElasticService.SearchJobseekersByQueryAsync(query);
+            var idDictionary = new Dictionary<string, int>();
+            for (int i = 0; i < jobseekersDocs.Count; i++)
+            {
+                idDictionary.Add(jobseekersDocs[i].Id, i);
+            }
+
+            var jobseekers = await _jobseekerRepository.GetJobseekersByUserIdsAsync(idDictionary.Keys.ToList());
+            jobseekers = jobseekers.OrderBy(js => idDictionary[js.AppUserId]).ToList();
+
+            return Ok(jobseekers.Select(js => js.ToJobseekerDto()).ToList());  // CHANGE DTO TYPE!!!!
         }
     }
 }

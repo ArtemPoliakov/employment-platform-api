@@ -43,6 +43,11 @@ namespace api.Repository
             return _dbContext.Jobseekers.FirstOrDefaultAsync(js => js.AppUserId.ToString().Equals(userId));
         }
 
+        public async Task<List<Jobseeker>> GetJobseekersByUserIdsAsync(List<string> userIds)
+        {
+            return await _dbContext.Jobseekers.Where(js => userIds.Contains(js.AppUserId)).ToListAsync();
+        }
+
         public async Task<bool> JobseekerExistsByUserId(string userId)
         {
             return await _dbContext.Jobseekers.AnyAsync(js => js.AppUserId.ToString().Equals(userId));

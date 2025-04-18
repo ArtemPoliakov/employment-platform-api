@@ -100,7 +100,7 @@ builder.Services.AddScoped<ITokenService, TockenService>();
 builder.Services.AddScoped<IJobseekerRepository, JobseekerRepository>();
 
 builder.Services.Configure<ElasticSettings>(builder.Configuration.GetSection("ElasticSettings"));
-builder.Services.AddSingleton<IJobseekerElasticService, JobseekerElasticService>();
+builder.Services.AddSingleton<IJobseekerElasticService, JobseekerElasticService>();  // maybe scoped?
 
 var app = builder.Build();
 

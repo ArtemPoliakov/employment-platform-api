@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.JobseekerDto.ElasticDtos;
+using api.Helpers;
 using api.Models;
 
 namespace api.Interfaces
@@ -22,5 +23,7 @@ namespace api.Interfaces
         Task<bool> DeleteJobseekerAsync(string key);
 
         Task<long?> RemoveAllAsync();
+
+        Task<List<JobseekerElasticDto>?> SearchJobseekersByQueryAsync(JobseekerQueryDto query);
     }
 }

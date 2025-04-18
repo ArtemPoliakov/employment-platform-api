@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Configuration;
+using api.CustomException;
 using api.Dtos.JobseekerDto.ElasticDtos;
+using api.Helpers;
 using api.Interfaces;
 using api.Models;
 using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.QueryDsl;
 using Microsoft.Extensions.Options;
 
 namespace api.Service
@@ -77,6 +80,64 @@ namespace api.Service
                 d => d.Indices(INDEX_NAME));
 
             return response.IsValidResponse ? response.Deleted : null;
+        }
+
+        public async Task<List<JobseekerElasticDto>?> SearchJobseekersByQueryAsync(JobseekerQueryDto query)
+        {
+            var mustQueries = new List<Query>();
+
+            if (!string.IsNullOrWhiteSpace(query.Profession))
+            {
+                mustQueries.Add(new MatchQuery("profession")
+                {
+                    Query = query.Profession,
+                    Fuzziness = new Fuzziness("auto")
+                });
+            }
+
+            if (query.ExperienceMin > 0 || query.ExperienceMax < 100)
+            {
+                mustQueries.Add(new NumberRangeQuery("experience")
+                {
+                    Gte = query.ExperienceMin,
+                    Lte = query.ExperienceMax
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Education))
+            {
+                mustQueries.Add(new TermQuery("education.keyword")
+                {
+                    Value = query.Education.ToLower()
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Location))
+            {
+                mustQueries.Add(new MatchQuery("location")
+                {
+                    Query = query.Location,
+                    Fuzziness = new Fuzziness("auto")
+                });
+            }
+
+            var searchRequest = new SearchRequest<JobseekerElasticDto>
+            {
+                From = (query.Page - 1) * query.PageSize,
+                Size = query.PageSize,
+                Query = new BoolQuery
+                {
+                    Must = mustQueries
+                }
+            };
+
+            var response = await _elasticClient.SearchAsync<JobseekerElasticDto>(searchRequest);
+            if (!response.IsValidResponse)
+            {
+                response.TryGetOriginalException(out var exception);
+                throw new JobseekerSearchException(exception?.Message ?? "Unknown Elsatic error"); //remove for prod
+            }
+            return response.Documents.ToList();
         }
     }
 }
