@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.CustomException;
 using api.Dtos.Admin;
 using api.Interfaces;
 using api.Mappers;
@@ -83,10 +84,18 @@ namespace api.Controllers
                 var jobseeker = dto.CreateJobseekerDto.ToJobseeker();
                 jobseeker.AppUserId = appUser.Id;
                 var createdJobseeker = await _jobseekerRepository.CreateAsync(jobseeker);
-                resultMsg += "\nJobseeker data added successfully!";
+                resultMsg += "Jobseeker data added successfully!";
 
                 resultMsgs.Add(resultMsg);
+                bool isElsaticOperationSuccess = await _jobseekerElasticService
+                .AddOrUpdateJobseekerAsync(createdJobseeker.ToJobseekerElasticDto());
+
+                if (!isElsaticOperationSuccess)
+                {
+                    throw new JobseekerElasticException("Failed to add jobseeker to elastic");
+                }
             }
+
             return Ok(resultMsgs);
         }
     }

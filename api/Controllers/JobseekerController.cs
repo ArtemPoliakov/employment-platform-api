@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
+using api.CustomException;
 using api.Data;
 using api.Dtos.JobseekerDto;
 using api.Extensions;
@@ -53,6 +54,13 @@ namespace api.Controllers
             var jobseeker = createJobseekerDto.ToJobseeker();
             jobseeker.AppUserId = appUser.Id;
             var createdJobseeker = await _jobseekerRepository.CreateAsync(jobseeker);
+
+            bool isElasticSuccess = await _jobseekerElasticService
+                                    .AddOrUpdateJobseekerAsync(createdJobseeker.ToJobseekerElasticDto());
+            if (!isElasticSuccess)
+            {
+                throw new JobseekerElasticException("Failed to add jobseeker to elastic");
+            }
             return Ok(createdJobseeker.ToJobseekerDto());
         }
 
@@ -87,6 +95,13 @@ namespace api.Controllers
 
             JobseekerMapper.MapChangesToJobseeker(jobseeker, updateJobseekerDto);
             var editedJobseeker = await _jobseekerRepository.UpdateAsync(jobseeker);
+
+            bool isElasticSuccess = await _jobseekerElasticService
+                                    .AddOrUpdateJobseekerAsync(editedJobseeker.ToJobseekerElasticDto());
+            if (!isElasticSuccess)
+            {
+                throw new JobseekerElasticException("Failed to update jobseeker in elastic");
+            }
             return Ok(editedJobseeker.ToJobseekerDto());
         }
 
