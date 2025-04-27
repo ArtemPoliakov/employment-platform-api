@@ -12,6 +12,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace api.Service
 {
+    /// <summary>
+    /// Service for creating JWT Tocken operations.
+    /// </summary>
     public class TockenService : ITokenService
     {
         private readonly IConfiguration _config;
@@ -23,6 +26,12 @@ namespace api.Service
             _userManager = userManager;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]));
         }
+
+        /// <summary>
+        /// Creates a JSON Web Token (JWT) for the given application user.
+        /// </summary>
+        /// <param name="appUser">The application user for whom the token is being created.</param>
+        /// <returns>A task representing the asynchronous operation, which, when completed, returns a JWT as a string.</returns>
         public async Task<string> CreateToken(AppUser appUser)
         {
             var roles = await _userManager.GetRolesAsync(appUser);

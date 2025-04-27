@@ -7,6 +7,9 @@ using api.Enums;
 
 namespace api.Dtos
 {
+    /// <summary>
+    /// Dto for user registration
+    /// </summary>
     public class RegisterDto
     {
         [Required]

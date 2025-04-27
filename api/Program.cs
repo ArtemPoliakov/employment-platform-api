@@ -1,7 +1,9 @@
+using api.Configuration;
 using api.Data;
 using api.Interfaces;
 using api.Middleware;
 using api.Models;
+using api.Repository;
 using api.Service;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -90,11 +92,15 @@ builder.Services.AddAuthentication(options =>
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
-    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.File("C:/Users/apoli/Desktop/logs/log.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 builder.Host.UseSerilog();
 
 builder.Services.AddScoped<ITokenService, TockenService>();
+builder.Services.AddScoped<IJobseekerRepository, JobseekerRepository>();
+
+builder.Services.Configure<ElasticSettings>(builder.Configuration.GetSection("ElasticSettings"));
+builder.Services.AddSingleton<IJobseekerElasticService, JobseekerElasticService>();  // maybe scoped?
 
 var app = builder.Build();
 

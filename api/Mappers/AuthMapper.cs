@@ -7,9 +7,17 @@ using api.Models;
 
 namespace api.Mappers
 {
+    /// <summary>
+    /// Mapper for transfering AppUser to Auth-related Dtos and vice versa
+    /// </summary>
     public static class AuthMapper
     {
-        public static AppUser toAppUser(this RegisterDto registerDto)
+        /// <summary>
+        /// Converts RegisterDto to AppUser
+        /// </summary>
+        /// <param name="registerDto">Data for registering</param>
+        /// <returns>AppUser</returns>
+        public static AppUser ToAppUser(this RegisterDto registerDto)
         {
 
             return new AppUser
@@ -20,7 +28,13 @@ namespace api.Mappers
             };
         }
 
-        public static UserPublicDataDto ToAppUserPublicDataDto(this AppUser appUser)
+        /// <summary>
+        /// Converts AppUser to UserPublicDataDto (public data about user, including role)
+        /// </summary>
+        /// <param name="appUser">AppUser model to be converted</param>
+        /// <param name="role">Role of the user (e.g. "Jobseeker" or "Company")</param>
+        /// <returns>UserPublicDataDto</returns>
+        public static UserPublicDataDto ToAppUserPublicDataDto(this AppUser appUser, string role)
         {
             return new UserPublicDataDto
             {
@@ -28,6 +42,7 @@ namespace api.Mappers
                 UserName = appUser.UserName,
                 Email = appUser.Email,
                 PhoneNumber = appUser.PhoneNumber,
+                Role = role
             };
         }
     }

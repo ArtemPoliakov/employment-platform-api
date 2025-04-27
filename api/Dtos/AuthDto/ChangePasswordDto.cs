@@ -6,11 +6,16 @@ using System.Threading.Tasks;
 
 namespace api.Dtos
 {
-    public class LoginDto
+    /// <summary>
+    /// Dto for changing user password
+    /// </summary>
+    public class ChangePasswordDto
     {
         [Required]
         public string UserName { get; set; }
         [Required]
-        public string Password { get; set; }
+        public string OldPassword { get; set; }
+        [Required]
+        public string NewPassword { get; set; }
     }
 }

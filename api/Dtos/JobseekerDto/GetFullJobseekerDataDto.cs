@@ -3,35 +3,47 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Enums;
-using Microsoft.AspNetCore.Identity;
 
-namespace api.Models
+namespace api.Dtos.JobseekerDto
 {
     /// <summary>
-    /// Model for jobseeker data. Is additional to the user account data.
-    /// One-to-Many with JobApplication.
-    /// One-to-Many with Offer.
-    /// Refers to AppUser.
+    /// Dto for getting full jobseeker data including public account details
     /// </summary>
-    public class Jobseeker
+    public class GetFullJobseekerDataDto
     {
-        public Guid Id { get; set; }
-        public string AppUserId { get; set; }
-        public AppUser AppUser { get; set; }
-        public List<JobApplication> JobApplications { get; set; } = [];
-        public List<Offer> Offers { get; set; } = [];
+        /* public string UserName { get; set; } = string.Empty;
+
+        public string Email { get; set; } = string.Empty;
+
+        public string Phone { get; set; } = string.Empty;
+
+        public string Role { get; set; } = string.Empty;
+
         public string Profession { get; set; } = string.Empty;
+
         public float Experience { get; set; } = 0;
-        public DegreeTypes Education { get; set; } = DegreeTypes.NONE;
+
+        public string Education { get; set; } = string.Empty;
+
         public string Location { get; set; } = string.Empty;
+
         public string PreviousWorkplace { get; set; } = string.Empty;
+
         public string PreviousPosition { get; set; } = string.Empty;
+
         public string QuitReason { get; set; } = string.Empty;
+
         public string FamilyConditions { get; set; } = string.Empty;
+
         public string LivingConditions { get; set; } = string.Empty;
+
         public string Preferences { get; set; } = string.Empty;
+
         public string SelfDescription { get; set; } = string.Empty;
-        public bool IsEmployed { get; set; } = false;
-        public DateTime RegisterDate { get; private set; } = DateTime.UtcNow;
+
+        public bool IsEmployed { get; set; } */
+
+        public UserPublicDataDto AppUserPublicData { get; set; }
+        public JobseekerDto JobseekerData { get; set; }
     }
 }
