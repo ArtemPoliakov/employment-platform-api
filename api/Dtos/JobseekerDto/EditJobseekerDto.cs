@@ -7,6 +7,9 @@ using api.Enums;
 
 namespace api.Dtos.JobseekerDto
 {
+    /// <summary>
+    /// Dto for jobseeker editing
+    /// </summary>
     public class EditJobseekerDto
     {
         [MinLength(3)]

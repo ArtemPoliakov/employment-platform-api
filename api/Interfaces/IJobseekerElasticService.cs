@@ -8,6 +8,10 @@ using api.Models;
 
 namespace api.Interfaces
 {
+    /// <summary>
+    /// Interface for jobseeker ElasticSearch service.
+    /// Used for flexible search.
+    /// </summary>
     public interface IJobseekerElasticService
     {
         Task CreateIndexIfNotExistsAsync();

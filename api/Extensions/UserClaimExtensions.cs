@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace api.Extensions
 {
+    /// <summary>
+    /// Extensions for operating with user claims (contained in JWT)
+    /// </summary>
     public static class UserClaimExtensions
     {
         public static string GetUsername(this ClaimsPrincipal user)

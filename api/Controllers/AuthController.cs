@@ -15,6 +15,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Controllers
 {
+    /// <summary>
+    /// Controller for auth operations
+    /// </summary>
     [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -29,6 +32,12 @@ namespace api.Controllers
             _tokenService = tokenService;
         }
 
+        /// <summary>
+        /// Registers new user
+        /// </summary>
+        /// <param name="registerDto">Data for registering</param>
+        /// <returns>Ok with user data and token on success, BadRequest on invalid model state,
+        /// StatusCode 400 with errors on user creation failure, StatusCode 500 with errors on role assignment failure</returns>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
@@ -66,6 +75,12 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// Logs in a user
+        /// </summary>
+        /// <param name="loginDto">Data for logging in</param>
+        /// <returns>Ok with user data and token on success, BadRequest on invalid model state,
+        /// NotFound if user doesn't exist, Unauthorized if password is invalid</returns>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
@@ -92,6 +107,11 @@ namespace api.Controllers
             );
         }
 
+        /// <summary>
+        /// Retrieves account data for the specified user.
+        /// </summary>
+        /// <param name="UserName">The username of the user whose account data is being retrieved.</param>
+        /// <returns>An Ok response with user public data if successful, BadRequest if the model state is invalid, or NotFound if the user does not exist.</returns>
         [HttpGet("data")]
         [Authorize]
         public async Task<IActionResult> GetAccountData(string UserName)
@@ -106,6 +126,13 @@ namespace api.Controllers
             return Ok(appUser.ToAppUserPublicDataDto(roles.First()));
         }
 
+        /// <summary>
+        /// Updates user account data.
+        /// </summary>
+        /// <param name="updateAccountDataDto">Data for updating the user account.</param>
+        /// <returns>Ok with updated user public data on success, BadRequest if the model state is invalid,
+        /// Unauthorized if the user is not authorized to update the user, NotFound if the user doesn't exist,
+        /// or StatusCode 500 if the update fails</returns>
         [HttpPut("edit")]
         [Authorize]
         public async Task<IActionResult> EditAccountData([FromBody] UpdateAccountDataDto updateAccountDataDto)
@@ -130,6 +157,13 @@ namespace api.Controllers
 
             return StatusCode(500, result.Errors);
         }
+
+        /// <summary>
+        /// Changes the password for the specified user.
+        /// </summary>
+        /// <param name="changePasswordDto">Data containing the username, old password, and new password.</param>
+        /// <returns>An Ok response with updated user data and token if successful, BadRequest if the model state is invalid
+        /// or the password change fails, NotFound if the user does not exist.</returns>
 
         [HttpPut("changePassword")]
         [Authorize]

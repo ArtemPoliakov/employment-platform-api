@@ -6,6 +6,9 @@ using api.Enums;
 
 namespace api.Dtos.JobseekerDto
 {
+    /// <summary>
+    /// Basic dto for retreiving jobseeker data
+    /// </summary>
     public class JobseekerDto
     {
         public string Profession { get; set; } = string.Empty;

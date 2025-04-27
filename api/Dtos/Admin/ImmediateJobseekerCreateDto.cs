@@ -7,6 +7,9 @@ using api.Dtos.JobseekerDto;
 
 namespace api.Dtos.Admin
 {
+    /// <summary>
+    /// Dto for Jobseeker quick seeding used in admin actions 
+    /// </summary>
     public class ImmediateJobseekerCreateDto
     {
         [Required]

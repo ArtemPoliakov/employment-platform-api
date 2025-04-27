@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.Dtos.JobseekerDto.ElasticDtos
 {
+    /// <summary>
+    /// Stands for ElasticSearch document for jobseeker
+    /// </summary>
     public class JobseekerElasticDto
     {
         /// <summary>

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace api.Dtos
 {
+    /// <summary>
+    /// Dto for updating user account data
+    /// </summary>
     public class UpdateAccountDataDto
     {
         [Required]

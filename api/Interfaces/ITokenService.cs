@@ -6,6 +6,9 @@ using api.Models;
 
 namespace api.Interfaces
 {
+    /// <summary>
+    /// Interface for token service. Creates JWT tockens.
+    /// </summary>
     public interface ITokenService
     {
         Task<string> CreateToken(AppUser appUser);

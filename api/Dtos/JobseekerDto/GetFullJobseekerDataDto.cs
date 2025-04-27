@@ -6,6 +6,9 @@ using api.Enums;
 
 namespace api.Dtos.JobseekerDto
 {
+    /// <summary>
+    /// Dto for getting full jobseeker data including public account details
+    /// </summary>
     public class GetFullJobseekerDataDto
     {
         public string UserName { get; set; } = string.Empty;

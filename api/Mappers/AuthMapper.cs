@@ -7,6 +7,9 @@ using api.Models;
 
 namespace api.Mappers
 {
+    /// <summary>
+    /// Mapper for transfering AppUser to Auth-related Dtos and vice versa
+    /// </summary>
     public static class AuthMapper
     {
         public static AppUser toAppUser(this RegisterDto registerDto)

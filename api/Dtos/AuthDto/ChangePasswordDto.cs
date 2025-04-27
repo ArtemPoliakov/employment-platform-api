@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace api.Dtos
 {
+    /// <summary>
+    /// Dto for changing user password
+    /// </summary>
     public class ChangePasswordDto
     {
         [Required]

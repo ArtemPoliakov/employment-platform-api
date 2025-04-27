@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.Dtos
 {
+    /// <summary>
+    /// Dto for user public data retrieval
+    /// </summary>
     public class UserPublicDataDto
     {
         public string Id { get; set; }

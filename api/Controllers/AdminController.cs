@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
 {
+    /// <summary>
+    /// Controller for admin actions
+    /// </summary>
     [Route("api/admin")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -28,6 +31,11 @@ namespace api.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>
+        /// Reindexes all jobseekers in ElasticSearch.
+        /// </summary>
+        /// <returns>A message indicating the number of jobseekers reindexed</returns>
+        /// <response code="200">If the reindexing is successful</response>
         [HttpPost]
         [Route("reindex")]
         public async Task<IActionResult> ReindexElastic()
@@ -39,6 +47,15 @@ namespace api.Controllers
             return Ok($"Jobseekers reindexed: {result}");
         }
 
+        /// <summary>
+        /// Creates jobseeker data for multiple users.
+        /// Returns a list of success messages, one for each jobseeker.
+        /// </summary>
+        /// <param name="jobseekerDtos">List of jobseeker data to be created</param>
+        /// <returns>A list of success messages, one for each jobseeker</returns>
+        /// <response code="400">If the request is invalid</response>
+        /// <response code="500">If the registration or adding to role fails</response>
+        /// <response code="200">If the jobseekers are created successfully</response>
         [HttpPost("bulkJobseekers")]
         public async Task<IActionResult> BulkJobseekers([FromBody] List<ImmediateJobseekerCreateDto> jobseekerDtos)
         {

@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace api.CustomException
 {
+    /// <summary>
+    /// Custom exception for jobseeker elastic operations
+    /// </summary>
     public class JobseekerElasticException : Exception
     {
         public JobseekerElasticException() { }

@@ -6,6 +6,9 @@ using api.Models;
 
 namespace api.Interfaces
 {
+    /// <summary>
+    /// Interface for jobseeker repository (Database operations).
+    /// </summary>
     public interface IJobseekerRepository
     {
         Task<Jobseeker> CreateAsync(Jobseeker jobseeker);

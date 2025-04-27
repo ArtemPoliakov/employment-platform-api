@@ -8,6 +8,9 @@ using api.Models;
 
 namespace api.Mappers
 {
+    /// <summary>
+    /// Mapper for transfering Jobseeker to Jobseeker-related Dtos and vice versa
+    /// </summary>
     public static class JobseekerMapper
     {
         public static Jobseeker ToJobseeker(this CreateJobseekerDto createJobseekerDto)
