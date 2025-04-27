@@ -38,14 +38,18 @@ namespace api.Repository
             return jobseekers;
         }
 
-        public Task<Jobseeker?> GetJobseekerByUserId(string userId)
+        public Task<Jobseeker?> GetJobseekerByUserId(string userId) //!
         {
             return _dbContext.Jobseekers.FirstOrDefaultAsync(js => js.AppUserId.ToString().Equals(userId));
         }
 
         public async Task<List<Jobseeker>> GetJobseekersByUserIdsAsync(List<string> userIds)
         {
-            return await _dbContext.Jobseekers.Where(js => userIds.Contains(js.AppUserId)).ToListAsync();
+            return await _dbContext
+                        .Jobseekers
+                        .Where(js => userIds.Contains(js.AppUserId))
+                        .Include(js => js.AppUser)
+                        .ToListAsync();
         }
 
         public async Task<bool> JobseekerExistsByUserId(string userId)

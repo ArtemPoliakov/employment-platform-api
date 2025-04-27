@@ -12,7 +12,12 @@ namespace api.Mappers
     /// </summary>
     public static class AuthMapper
     {
-        public static AppUser toAppUser(this RegisterDto registerDto)
+        /// <summary>
+        /// Converts RegisterDto to AppUser
+        /// </summary>
+        /// <param name="registerDto">Data for registering</param>
+        /// <returns>AppUser</returns>
+        public static AppUser ToAppUser(this RegisterDto registerDto)
         {
 
             return new AppUser
@@ -23,6 +28,12 @@ namespace api.Mappers
             };
         }
 
+        /// <summary>
+        /// Converts AppUser to UserPublicDataDto (public data about user, including role)
+        /// </summary>
+        /// <param name="appUser">AppUser model to be converted</param>
+        /// <param name="role">Role of the user (e.g. "Jobseeker" or "Company")</param>
+        /// <returns>UserPublicDataDto</returns>
         public static UserPublicDataDto ToAppUserPublicDataDto(this AppUser appUser, string role)
         {
             return new UserPublicDataDto

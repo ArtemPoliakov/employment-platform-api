@@ -11,6 +11,7 @@ namespace api.Dtos.JobseekerDto
     /// </summary>
     public class JobseekerDto
     {
+        public string UserName { get; set; }
         public string Profession { get; set; } = string.Empty;
 
         public float Experience { get; set; } = 0;
@@ -34,5 +35,6 @@ namespace api.Dtos.JobseekerDto
         public string SelfDescription { get; set; } = string.Empty;
 
         public bool IsEmployed { get; set; }
+        public DateTime RegisterDate { get; set; }
     }
 }

@@ -44,7 +44,7 @@ namespace api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var appUser = registerDto.toAppUser();
+            var appUser = registerDto.ToAppUser();
             var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
 
             if (createdUser.Succeeded)

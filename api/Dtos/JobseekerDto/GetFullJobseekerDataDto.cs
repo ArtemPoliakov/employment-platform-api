@@ -11,7 +11,7 @@ namespace api.Dtos.JobseekerDto
     /// </summary>
     public class GetFullJobseekerDataDto
     {
-        public string UserName { get; set; } = string.Empty;
+        /* public string UserName { get; set; } = string.Empty;
 
         public string Email { get; set; } = string.Empty;
 
@@ -41,6 +41,9 @@ namespace api.Dtos.JobseekerDto
 
         public string SelfDescription { get; set; } = string.Empty;
 
-        public bool IsEmployed { get; set; }
+        public bool IsEmployed { get; set; } */
+
+        public UserPublicDataDto AppUserPublicData { get; set; }
+        public JobseekerDto JobseekerData { get; set; }
     }
 }

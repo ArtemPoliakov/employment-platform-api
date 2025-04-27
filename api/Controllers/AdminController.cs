@@ -66,7 +66,7 @@ namespace api.Controllers
             foreach (var dto in jobseekerDtos)
             {
                 string resultMsg = "";
-                var appUserModel = dto.RegisterDto.toAppUser();
+                var appUserModel = dto.RegisterDto.ToAppUser();
                 var createdUser = await _userManager.CreateAsync(appUserModel, dto.RegisterDto.Password);
 
                 if (createdUser.Succeeded)

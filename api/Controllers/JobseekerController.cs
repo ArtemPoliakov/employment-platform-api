@@ -72,7 +72,7 @@ namespace api.Controllers
             {
                 throw new JobseekerElasticException("Failed to add jobseeker to elastic");
             }
-            return Ok(createdJobseeker.ToJobseekerDto());
+            return Ok(createdJobseeker.ToJobseekerDto(appUser.UserName));
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace api.Controllers
             {
                 throw new JobseekerElasticException("Failed to update jobseeker in elastic");
             }
-            return Ok(editedJobseeker.ToJobseekerDto());
+            return Ok(editedJobseeker.ToJobseekerDto(appUser.UserName));
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace api.Controllers
             var jobseekers = await _jobseekerRepository.GetJobseekersByUserIdsAsync(idDictionary.Keys.ToList());
             jobseekers = jobseekers.OrderBy(js => idDictionary[js.AppUserId]).ToList();
 
-            return Ok(jobseekers.Select(js => js.ToJobseekerDto()).ToList());  // CHANGE DTO TYPE!!!!
+            return Ok(jobseekers.Select(js => js.ToJobseekerCompactSearchResultDto(js.AppUser.UserName)).ToList());
         }
     }
 }

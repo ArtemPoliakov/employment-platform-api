@@ -13,6 +13,11 @@ namespace api.Mappers
     /// </summary>
     public static class JobseekerMapper
     {
+        /// <summary>
+        /// Converts CreateJobseekerDto to Jobseeker
+        /// </summary>
+        /// <param name="createJobseekerDto">Jobseeker data to be created</param>
+        /// <returns>Jobseeker model</returns>
         public static Jobseeker ToJobseeker(this CreateJobseekerDto createJobseekerDto)
         {
             return new Jobseeker
@@ -32,10 +37,17 @@ namespace api.Mappers
             };
         }
 
-        public static JobseekerDto ToJobseekerDto(this Jobseeker jobseeker)
+        /// <summary>
+        /// Converts Jobseeker to JobseekerDto (info to give away)
+        /// </summary>
+        /// <param name="jobseeker">Jobseeker model</param>
+        /// <param name="userName">Related user name</param>
+        /// <returns>JobseekerDto</returns>
+        public static JobseekerDto ToJobseekerDto(this Jobseeker jobseeker, string userName)
         {
             return new JobseekerDto
             {
+                UserName = userName,
                 Profession = jobseeker.Profession,
                 Experience = jobseeker.Experience,
                 Education = jobseeker.Education.ToString(),
@@ -47,32 +59,31 @@ namespace api.Mappers
                 LivingConditions = jobseeker.LivingConditions,
                 Preferences = jobseeker.Preferences,
                 SelfDescription = jobseeker.SelfDescription,
-                IsEmployed = jobseeker.IsEmployed
+                IsEmployed = jobseeker.IsEmployed,
+                RegisterDate = jobseeker.RegisterDate
             };
         }
 
-        public static GetFullJobseekerDataDto ToGetFullJobseekerDataDto(this Jobseeker? jobseeker, AppUser appUser, string role)
+        /// <summary>
+        /// Converts Jobseeker and AppUser to GetFullJobseekerDataDto (full jobseeker data, including public account data)
+        /// </summary>
+        /// <param name="jobseeker">Jobseeker model</param>
+        /// <param name="appUser">Related AppUser model</param>
+        /// <param name="role">Role of the user (e.g. "Jobseeker" or "Company")</param>
+        /// <returns>GetFullJobseekerDataDto</returns>
+        public static GetFullJobseekerDataDto ToGetFullJobseekerDataDto(this Jobseeker jobseeker, AppUser appUser, string role)
         {
             return new GetFullJobseekerDataDto
             {
-                UserName = appUser.UserName,
-                Email = appUser.Email,
-                Phone = appUser.PhoneNumber,
-                Role = role,
-                Profession = jobseeker.Profession,
-                Experience = jobseeker.Experience,
-                Education = jobseeker.Education.ToString(),
-                Location = jobseeker.Location,
-                PreviousWorkplace = jobseeker.PreviousWorkplace,
-                PreviousPosition = jobseeker.PreviousPosition,
-                QuitReason = jobseeker.QuitReason,
-                FamilyConditions = jobseeker.FamilyConditions,
-                LivingConditions = jobseeker.LivingConditions,
-                Preferences = jobseeker.Preferences,
-                SelfDescription = jobseeker.SelfDescription,
-                IsEmployed = jobseeker.IsEmployed
+                AppUserPublicData = appUser.ToAppUserPublicDataDto(role),
+                JobseekerData = jobseeker.ToJobseekerDto(appUser.UserName),
             };
         }
+        /// <summary>
+        /// Maps data from EditJobseekerDto to Jobseeker. Null values in EditJobseekerDto are ignored.
+        /// </summary>
+        /// <param name="jobseeker">Jobseeker model to be updated</param>
+        /// <param name="editJobseekerDto">Jobseeker data to be updated</param>
         public static void MapChangesToJobseeker(Jobseeker jobseeker, EditJobseekerDto editJobseekerDto)
         {
             jobseeker.Profession = editJobseekerDto.Profession ?? jobseeker.Profession;
@@ -89,6 +100,11 @@ namespace api.Mappers
             jobseeker.IsEmployed = editJobseekerDto.IsEmployed ?? jobseeker.IsEmployed;
         }
 
+        /// <summary>
+        /// Converts Jobseeker to JobseekerElasticDto (dto for ElasticSearch document)
+        /// </summary>
+        /// <param name="jobseeker">Jobseeker model to be converted</param>
+        /// <returns>JobseekerElasticDto</returns>
         public static JobseekerElasticDto ToJobseekerElasticDto(this Jobseeker jobseeker)
         {
             return new JobseekerElasticDto
@@ -98,6 +114,26 @@ namespace api.Mappers
                 Education = jobseeker.Education.ToString().ToLower(),
                 Location = jobseeker.Location,
                 Experience = jobseeker.Experience
+            };
+        }
+
+        /// <summary>
+        /// Converts Jobseeker to JobseekerCompactSearchResultDto (compact jobseeker data for search results)
+        /// </summary>
+        /// <param name="jobseeker">Jobseeker model to be converted</param>
+        /// <param name="userName">Related user name</param>
+        /// <returns>JobseekerCompactSearchResultDto</returns>
+        public static JobseekerCompactSearchResultDto ToJobseekerCompactSearchResultDto(this Jobseeker jobseeker, string userName)
+        {
+            return new JobseekerCompactSearchResultDto
+            {
+                UserName = userName,
+                Profession = jobseeker.Profession,
+                Experience = jobseeker.Experience,
+                Education = jobseeker.Education,
+                Location = jobseeker.Location,
+                IsEmployed = jobseeker.IsEmployed,
+                AppUserId = jobseeker.AppUserId
             };
         }
     }

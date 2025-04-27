@@ -32,6 +32,6 @@ namespace api.Models
         public string Preferences { get; set; } = string.Empty;
         public string SelfDescription { get; set; } = string.Empty;
         public bool IsEmployed { get; set; } = false;
-        public DateTime RegisterDate { get; private set; } = DateTime.UtcNow.Date;
+        public DateTime RegisterDate { get; private set; } = DateTime.UtcNow;
     }
 }
