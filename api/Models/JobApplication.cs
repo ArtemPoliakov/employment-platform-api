@@ -18,6 +18,6 @@ namespace api.Models
         public Jobseeker Jobseeker { get; set; }
         public JobApplicationStatuses Status { get; set; } = JobApplicationStatuses.PENDING;
         public string CompanyResponse { get; set; } = string.Empty;
-        public DateTime CreationDate { get; private set; } = DateTime.UtcNow.Date;
+        public DateTime CreationDate { get; private set; } = DateTime.UtcNow;
     }
 }

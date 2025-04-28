@@ -27,6 +27,6 @@ namespace api.Models
         public VacancyWorkModes WorkMode { get; set; } = VacancyWorkModes.OTHER;
         public string LivingConditions { get; set; } = string.Empty;
         public DateTime EditDate { get; set; }
-        public DateTime PublishDate { get; private set; } = DateTime.UtcNow.Date;
+        public DateTime PublishDate { get; private set; } = DateTime.UtcNow;
     }
 }

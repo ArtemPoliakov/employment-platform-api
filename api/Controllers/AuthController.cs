@@ -101,7 +101,7 @@ namespace api.Controllers
                     UserName = appUser.UserName,
                     Email = appUser.Email,
                     PhoneNumber = appUser.PhoneNumber,
-                    Role = roles.First(),
+                    Role = roles.FirstOrDefault() ?? "none",
                     Token = await _tokenService.CreateToken(appUser)
                 }
             );

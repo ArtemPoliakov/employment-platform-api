@@ -43,7 +43,7 @@ namespace api.Dtos.JobseekerDto
 
         public bool IsEmployed { get; set; } */
 
-        public UserPublicDataDto AppUserPublicData { get; set; }
+        public AppUserPublicDataDto AppUserPublicData { get; set; }
         public JobseekerDto JobseekerData { get; set; }
     }
 }

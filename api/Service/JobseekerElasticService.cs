@@ -77,9 +77,14 @@ namespace api.Service
         public async Task<long?> RemoveAllAsync()
         {
             var response = await _elasticClient.DeleteByQueryAsync<JobseekerElasticDto>(
-                d => d.Indices(INDEX_NAME));
-
-            return response.IsValidResponse ? response.Deleted : null;
+                d => d
+                    .Indices(INDEX_NAME)
+                    .Query(q => q.MatchAll(new MatchAllQuery())));
+            if (!response.IsValidResponse)
+            {
+                throw new JobseekerElasticException("Failed to delete jobseekers from elastic");
+            }
+            return response.Deleted;
         }
 
         public async Task<List<JobseekerElasticDto>?> SearchJobseekersByQueryAsync(JobseekerQueryDto query)

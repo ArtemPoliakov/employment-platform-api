@@ -20,6 +20,8 @@ namespace api.Data
         public DbSet<Jobseeker> Jobseekers { get; set; }
         public DbSet<JobApplication> JobApplications { get; set; }
         public DbSet<Offer> Offers { get; set; }
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<Vacancy> Vacancies { get; set; }
 
         /// <summary>
         /// Configures model relationships, enum mapping and role seeding
@@ -31,8 +33,18 @@ namespace api.Data
 
             List<IdentityRole> roles =
             [
-                new IdentityRole { Name = "JOBSEEKER", NormalizedName = "JOBSEEKER"},
-                new IdentityRole { Name = "COMPANY", NormalizedName = "COMPANY"},
+                new IdentityRole
+                {
+                  Name = "JOBSEEKER",
+                  NormalizedName = "JOBSEEKER",
+                  Id = "8c688e00-551a-4d63-a93c-20118a9332e5"
+                },
+                new IdentityRole
+                {
+                  Name = "COMPANY",
+                  NormalizedName = "COMPANY",
+                  Id = "22bfe0d9-8d28-4593-ab37-5ffd3097b7ed"
+                },
             ];
             modelBuilder.Entity<IdentityRole>().HasData(roles);
 
@@ -56,13 +68,15 @@ namespace api.Data
             modelBuilder.Entity<Jobseeker>()
                 .HasOne(u => u.AppUser)
                 .WithOne()
-                .HasForeignKey<Jobseeker>(j => j.AppUserId);
+                .HasForeignKey<Jobseeker>(j => j.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
             modelBuilder.Entity<Company>()
                 .HasOne(c => c.AppUser)
                 .WithOne()
-                .HasForeignKey<Company>(c => c.AppUserId);
+                .HasForeignKey<Company>(c => c.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
             modelBuilder.Entity<Vacancy>()
