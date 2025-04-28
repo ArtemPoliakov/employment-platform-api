@@ -93,7 +93,7 @@ namespace api.Controllers
                 {
                     return BadRequest("User not found");
                 }
-                if (await _jobseekerRepository.JobseekerExistsByUserId(appUser.Id))
+                if (await _jobseekerRepository.JobseekerExistsByUserIdAsync(appUser.Id))
                 {
                     return BadRequest("Jobseeker data for this user already exists");
                 }
@@ -114,6 +114,18 @@ namespace api.Controllers
             }
 
             return Ok(resultMsgs);
+        }
+
+        /// <summary>
+        /// Clears all jobseekers from ElasticSearch.
+        /// </summary>
+        /// <returns>A message indicating the number of jobseekers deleted from ElasticSearch</returns>
+        /// <response code="200">If the deletion is successful</response>
+        [HttpPost("clearJobseekersFromElastic")]
+        public async Task<IActionResult> ClearJobseekersFromElastic()
+        {
+            var deletedCount = await _jobseekerElasticService.RemoveAllAsync();
+            return Ok($"{deletedCount} jobseekers deleted from elastic");
         }
     }
 }

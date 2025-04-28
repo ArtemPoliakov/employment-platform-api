@@ -38,9 +38,9 @@ namespace api.Repository
             return jobseekers;
         }
 
-        public Task<Jobseeker?> GetJobseekerByUserId(string userId) //!
+        public async Task<Jobseeker?> GetJobseekerByUserIdAsync(string userId) //!
         {
-            return _dbContext.Jobseekers.FirstOrDefaultAsync(js => js.AppUserId.ToString().Equals(userId));
+            return await _dbContext.Jobseekers.FirstOrDefaultAsync(js => js.AppUserId.ToString().Equals(userId));
         }
 
         public async Task<List<Jobseeker>> GetJobseekersByUserIdsAsync(List<string> userIds)
@@ -52,7 +52,7 @@ namespace api.Repository
                         .ToListAsync();
         }
 
-        public async Task<bool> JobseekerExistsByUserId(string userId)
+        public async Task<bool> JobseekerExistsByUserIdAsync(string userId)
         {
             return await _dbContext.Jobseekers.AnyAsync(js => js.AppUserId.ToString().Equals(userId));
         }

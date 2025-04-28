@@ -18,6 +18,6 @@ namespace api.Models
         public List<Vacancy> Vacancies { get; set; } = [];
         public string SelfDescription { get; set; } = string.Empty;
         public string Location { get; set; } = string.Empty;
-        public DateTime RegisterDate { get; private set; } = DateTime.UtcNow.Date;
+        public DateTime RegisterDate { get; private set; } = DateTime.UtcNow;
     }
 }

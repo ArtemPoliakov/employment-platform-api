@@ -34,9 +34,9 @@ namespace api.Mappers
         /// <param name="appUser">AppUser model to be converted</param>
         /// <param name="role">Role of the user (e.g. "Jobseeker" or "Company")</param>
         /// <returns>UserPublicDataDto</returns>
-        public static UserPublicDataDto ToAppUserPublicDataDto(this AppUser appUser, string role)
+        public static AppUserPublicDataDto ToAppUserPublicDataDto(this AppUser appUser, string role)
         {
-            return new UserPublicDataDto
+            return new AppUserPublicDataDto
             {
                 Id = appUser.Id,
                 UserName = appUser.UserName,

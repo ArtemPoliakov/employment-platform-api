@@ -46,7 +46,7 @@ namespace api.Controllers
         /// <response code="400">If the request is invalid</response>
         /// <response code="200">If the jobseeker data is created successfully</response>
         [HttpPost("create")]
-        [Authorize]
+        [Authorize(Roles = "JOBSEEKER")]
         public async Task<IActionResult> CreateJobseeker(CreateJobseekerDto createJobseekerDto)
         {
             if (!ModelState.IsValid)
@@ -57,7 +57,7 @@ namespace api.Controllers
             {
                 return BadRequest("User not found");
             }
-            if (await _jobseekerRepository.JobseekerExistsByUserId(appUser.Id))
+            if (await _jobseekerRepository.JobseekerExistsByUserIdAsync(appUser.Id))
             {
                 return BadRequest("Jobseeker data for this user already exists");
             }
@@ -92,8 +92,8 @@ namespace api.Controllers
             {
                 return BadRequest("User not found");
             }
-            var role = _userManager.GetRolesAsync(appUser).Result.First();
-            var jobseeker = await _jobseekerRepository.GetJobseekerByUserId(appUser.Id);
+            var role = _userManager.GetRolesAsync(appUser).Result.FirstOrDefault() ?? "none";
+            var jobseeker = await _jobseekerRepository.GetJobseekerByUserIdAsync(appUser.Id);
 
             return Ok(JobseekerMapper.ToGetFullJobseekerDataDto(jobseeker, appUser, role));
         }
@@ -105,7 +105,7 @@ namespace api.Controllers
         /// <returns>A response containing the updated jobseeker data, or an error message if the user is not found or the jobseeker data does not exist</returns>
         /// <response code="400">If the user is not found or the jobseeker data does not exist</response>
         /// <response code="200">If the jobseeker data is updated successfully</response>
-        [HttpPut]
+        [HttpPut("edit")]
         [Authorize]
         public async Task<IActionResult> EditJobseeker([FromBody] EditJobseekerDto updateJobseekerDto)
         {
@@ -116,7 +116,7 @@ namespace api.Controllers
             var appUser = await _userManager.FindByNameAsync(username);
             if (appUser == null) return BadRequest("User not found");
 
-            var jobseeker = await _jobseekerRepository.GetJobseekerByUserId(appUser.Id);
+            var jobseeker = await _jobseekerRepository.GetJobseekerByUserIdAsync(appUser.Id);
             if (jobseeker == null) return BadRequest("Jobseeker data does not exist");
 
             JobseekerMapper.MapChangesToJobseeker(jobseeker, updateJobseekerDto);
