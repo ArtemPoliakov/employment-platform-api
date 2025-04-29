@@ -16,7 +16,9 @@ namespace api.Interfaces
         Task<Vacancy> UpdateAsync(Vacancy vacancy);
         Task<Vacancy?> GetByIdAsync(Guid id, bool includeCompany = false);
         Task<List<Vacancy>> GetAllByCompanyIdAsync(Guid id);
+        Task<List<Vacancy>> GetAllVacanciesByIdsAsync(List<Guid> ids);
         Task<List<Vacancy>> SearchByQueryAsync(VacancyQueryDto query);
         Task<bool> DeleteAsync(Vacancy vacancy);
+        Task<List<Vacancy>> GetAllVacanciesAsync();
     }
 }

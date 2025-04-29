@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Dtos.Admin;
 using api.Dtos.CompanyDtos;
 using api.Models;
 
@@ -71,6 +72,18 @@ namespace api.Mappers
                 AppUserPublicData = appUser.ToAppUserPublicDataDto(role),
                 CompanyData = company.ToCompanyDto(appUser.UserName ?? "none")
             };
+        }
+
+        /// <summary>
+        /// Converts CompanyBulkDto to Company model, including associated vacancies.
+        /// </summary>
+        /// <param name="companyBulkDto">The CompanyBulkDto to convert.</param>
+        /// <returns>The Company model with associated vacancies.</returns>
+        public static Company CompanyBulkDtoToCompany(this CompanyBulkDto companyBulkDto)
+        {
+            var company = companyBulkDto.CreateCompanyDto.CreateCompanyDtoToCompany();
+            company.Vacancies = companyBulkDto.CreateVacancyDtos.Select(dto => dto.ToVacancy()).ToList();
+            return company;
         }
     }
 }

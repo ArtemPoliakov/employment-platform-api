@@ -78,5 +78,45 @@ namespace api.Mappers
                 LivingConditions = dto.LivingConditions
             };
         }
+
+        /// <summary>
+        /// Maps data from EditVacancyDto to Vacancy. Null values in EditVacancyDto are ignored.
+        /// </summary>
+        /// <param name="vacancy">The Vacancy model to be updated.</param>
+        /// <param name="editVacancyDto">The Dto with new data.</param>
+        public static void MapChangesToVacancy(Vacancy vacancy, EditVacancyDto editVacancyDto)
+        {
+            vacancy.Title = editVacancyDto.Title ?? vacancy.Title;
+            vacancy.Description = editVacancyDto.Description ?? vacancy.Description;
+            vacancy.CandidateDescription = editVacancyDto.CandidateDescription ?? vacancy.CandidateDescription;
+            vacancy.Position = editVacancyDto.Position ?? vacancy.Position;
+            vacancy.SalaryMin = editVacancyDto.SalaryMin ?? vacancy.SalaryMin;
+            vacancy.SalaryMax = editVacancyDto.SalaryMax ?? vacancy.SalaryMax;
+            vacancy.WorkMode = editVacancyDto.WorkMode ?? vacancy.WorkMode;
+            vacancy.LivingConditions = editVacancyDto.LivingConditions ?? vacancy.LivingConditions;
+            vacancy.EditDate = DateTime.Now;
+        }
+
+
+        /// <summary>
+        /// Maps data from Vacancy to VacancyCompactDto.
+        /// </summary>
+        /// <param name="vacancy">The Vacancy model to be mapped.</param>
+        /// <param name="companyUserName">The user name of the company.</param>
+        /// <returns>The mapped VacancyCompactDto.</returns>
+        public static VacancyCompactDto ToVacancyCompactDto(this Vacancy vacancy, string companyUserName)
+        {
+            return new VacancyCompactDto
+            {
+                CompanyUserName = companyUserName,
+                Title = vacancy.Title,
+                Description = vacancy.Description,
+                Position = vacancy.Position,
+                SalaryMin = vacancy.SalaryMin,
+                SalaryMax = vacancy.SalaryMax,
+                WorkMode = vacancy.WorkMode.ToString(),
+                Id = vacancy.Id
+            };
+        }
     }
 }

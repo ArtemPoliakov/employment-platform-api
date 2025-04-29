@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.VacancyDtos;
 using api.Extensions;
+using api.Helpers;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
@@ -89,7 +90,7 @@ namespace api.Controllers
         /// <returns>A list of the retrieved vacancies, or an error message if the request is invalid, user is not found, or company data does not exist</returns>
         /// <response code="400">If the request is invalid, user is not found, or company data does not exist</response>
         /// <response code="200">If the vacancies are retrieved successfully</response>
-        [HttpGet("getByCompanyName/{companyName}")]
+        [HttpGet("getAllByCompanyName/{companyName}")]
         [Authorize]
         public async Task<IActionResult> GetAllVacanciesForCompany([FromRoute] string companyName)
         {
@@ -102,6 +103,57 @@ namespace api.Controllers
             return Ok(company.Vacancies
                    .Select(v => v.ToVacancyDto(companyAppUser.UserName ?? "none"))
                    .ToList());
+        }
+
+        [HttpDelete("delete/{vacancyId}")]
+        [Authorize(Roles = "COMPANY")]
+        public async Task<IActionResult> DeleteVacancy([FromRoute] Guid vacancyId)
+        {
+            var companyAppUser = await _userManager.FindByNameAsync(User.GetUsername());
+            if (companyAppUser == null) return BadRequest("Company user not found");
+
+            var vacancy = await _vacancyRepository.GetByIdAsync(vacancyId, true);
+            if (vacancy == null) return BadRequest("Vacancy not found");
+
+            if (vacancy.Company.AppUserId != companyAppUser.Id)
+            {
+                return Unauthorized("You are not authorized to delete this vacancy");
+            }
+
+            await _vacancyRepository.DeleteAsync(vacancy);
+            return NoContent();
+        }
+
+        [HttpPut("edit/{vacancyId}")]
+        [Authorize(Roles = "COMPANY")]
+        public async Task<IActionResult> EditVacancy([FromRoute] Guid vacancyId,
+                                                     [FromBody] EditVacancyDto editVacancyDto)
+        {
+            var companyAppUser = await _userManager.FindByNameAsync(User.GetUsername());
+            if (companyAppUser == null) return BadRequest("Company user not found");
+
+            var vacancy = await _vacancyRepository.GetByIdAsync(vacancyId, true);
+            if (vacancy == null) return BadRequest("Vacancy not found");
+
+            if (vacancy.Company.AppUserId != companyAppUser.Id)
+            {
+                return Unauthorized("You are not authorized to edit this vacancy");
+            }
+
+            VacancyMapper.MapChangesToVacancy(vacancy, editVacancyDto);
+            var updatedVacancy = await _vacancyRepository.UpdateAsync(vacancy);
+            return Ok(updatedVacancy.ToVacancyDto(companyAppUser.UserName ?? "none"));
+        }
+
+        [HttpGet("search")]
+        [Authorize]
+        public async Task<IActionResult> SearchByQuery([FromQuery] VacancyQueryDto searchVacancyDto)
+        {
+            var vacancies = await _vacancyRepository.SearchByQueryAsync(searchVacancyDto);
+            return Ok(
+            vacancies
+            .Select(v => v.ToVacancyCompactDto(v.Company.AppUser.UserName ?? "none"))
+            .ToList());
         }
     }
 }

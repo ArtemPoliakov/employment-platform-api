@@ -20,7 +20,7 @@ namespace api.Helpers
         public string? Position { get; set; }
 
         [Range(1, 100_000_000_000, ErrorMessage = "Min salary must be greater than 0 and less or equal to 100_000_000_000")]
-        public float MinSalary { get; set; } = 0;
+        public float MinSalary { get; set; } = 1;
 
         [Range(1, 100_000_000_000, ErrorMessage = "Max salary must be greater than 0 and less or equal to 100_000_000_000")]
         public float MaxSalary { get; set; } = 100_000_000_000;

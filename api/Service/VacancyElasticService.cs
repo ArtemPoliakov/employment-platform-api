@@ -54,7 +54,11 @@ namespace api.Service
             var response = await _elasticClient.BulkAsync(
                 b => b.UpdateMany(vacancies, (ud, u) => ud.Doc(u).DocAsUpsert(true))
                 );
-
+            if (!response.IsValidResponse)
+            {
+                response.TryGetOriginalException(out var exception);
+                throw new VacancyElasticException(exception?.Message ?? "Unknown Elsatic error"); //remove for prod
+            }
             return response.IsValidResponse;
         }
 
@@ -173,7 +177,7 @@ namespace api.Service
             {
                 mustQueries.Add(new TermQuery("workMode.keyword")
                 {
-                    Value = query.WorkMode.ToLower()  //may be a problem here (is stored in UPPER)
+                    Value = query.WorkMode.ToUpper()
                 });
             }
 
