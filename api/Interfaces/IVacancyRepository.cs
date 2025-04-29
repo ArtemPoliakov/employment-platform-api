@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using api.Helpers;
+using api.Models;
+
+namespace api.Interfaces
+{
+    /// <summary>
+    /// Facilitated db operations for vacancies
+    /// </summary>
+    public interface IVacancyRepository
+    {
+        Task<Vacancy> CreateAsync(Vacancy vacancy);
+        Task<Vacancy> UpdateAsync(Vacancy vacancy);
+        Task<Vacancy?> GetByIdAsync(Guid id, bool includeCompany = false);
+        Task<List<Vacancy>> GetAllByCompanyIdAsync(Guid id);
+        Task<List<Vacancy>> SearchByQueryAsync(VacancyQueryDto query);
+        Task<bool> DeleteAsync(Vacancy vacancy);
+    }
+}

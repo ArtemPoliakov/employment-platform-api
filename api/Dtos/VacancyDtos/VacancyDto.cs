@@ -4,29 +4,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Enums;
 
-namespace api.Models
+namespace api.Dtos.VacancyDtos
 {
     /// <summary>
-    /// Vacancy model
-    /// One-to-Many with JobApplication.
-    /// One-to-Many with Offer.
+    /// Basic dto for vacancy data to give away
     /// </summary>
-    public class Vacancy
+    public class VacancyDto
     {
+        public string CompanyUserName { get; set; } = string.Empty;
         public Guid Id { get; set; }
-        public Guid CompanyId { get; set; }
-        public Company Company { get; set; }
-        public List<Offer> Offers { get; set; } = [];
-        public List<JobApplication> JobApplications { get; set; } = [];
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string CandidateDescription { get; set; } = string.Empty;
         public string Position { get; set; } = string.Empty;
         public float SalaryMin { get; set; } = 0;
         public float SalaryMax { get; set; } = 0;
-        public VacancyWorkModes WorkMode { get; set; } = VacancyWorkModes.NONE;
+        public string WorkMode { get; set; } = VacancyWorkModes.NONE.ToString();
         public string LivingConditions { get; set; } = string.Empty;
         public DateTime EditDate { get; set; }
-        public DateTime PublishDate { get; private set; } = DateTime.UtcNow;
+        public DateTime PublishDate { get; set; }
     }
 }

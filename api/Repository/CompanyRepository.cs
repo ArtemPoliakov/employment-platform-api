@@ -38,16 +38,22 @@ namespace api.Repository
             return company;
         }
 
-        /// <summary>
-        /// Gets a company by user id.
-        /// </summary>
-        /// <param name="userId">User id to get the company for</param>
-        /// <returns>The corresponding company, or null if it doesn't exist</returns>
-        public async Task<Company?> GetCompanyByUserIdAsync(string userId)
-        {
-            return await _dbContext.Companies.FirstOrDefaultAsync(c => c.AppUserId.Equals(userId));
-        }
 
+        /// <summary>
+        /// Retrieves a company by its user id from the database.
+        /// </summary>
+        /// <param name="userId">The user id of the company to be retrieved</param>
+        /// <param name="includeVacancies">Whether to include related vacancies in the result</param>
+        /// <returns>The retrieved company, or null if none is found</returns>
+        public async Task<Company?> GetCompanyByUserIdAsync(string userId, bool includeVacancies = false)
+        {
+            var companyQuery = _dbContext.Companies.AsQueryable();
+            if (includeVacancies)
+            {
+                companyQuery = companyQuery.Include(c => c.Vacancies);
+            }
+            return await companyQuery.FirstOrDefaultAsync(c => c.AppUserId.Equals(userId));
+        }
 
         /// <summary>
         /// Updates a company in the database.

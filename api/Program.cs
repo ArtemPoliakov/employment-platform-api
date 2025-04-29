@@ -99,6 +99,8 @@ builder.Host.UseSerilog();
 builder.Services.AddScoped<ITokenService, TockenService>();
 builder.Services.AddScoped<IJobseekerRepository, JobseekerRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IVacancyRepository, VacancyRepository>();
+builder.Services.AddScoped<IVacancyElasticService, VacancyElasticService>();
 
 builder.Services.Configure<ElasticSettings>(builder.Configuration.GetSection("ElasticSettings"));
 builder.Services.AddSingleton<IJobseekerElasticService, JobseekerElasticService>();  // maybe scoped?

@@ -12,6 +12,7 @@ namespace api.Enums
     {
         OFFICE,
         REMOTE,
-        OTHER
+        OTHER,
+        NONE
     }
 }
