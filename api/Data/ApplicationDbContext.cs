@@ -85,6 +85,8 @@ namespace api.Data
                 .HasForeignKey(v => v.CompanyId);
 
 
+            modelBuilder.Entity<JobApplication>().HasKey(a => new { a.JobseekerId, a.VacancyId });
+
             modelBuilder.Entity<JobApplication>()
                 .HasOne(a => a.Jobseeker)
                 .WithMany(j => j.JobApplications)
@@ -98,10 +100,12 @@ namespace api.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
 
+            modelBuilder.Entity<Offer>().HasKey(o => new { o.JobseekerId, o.VacancyId });
+
             modelBuilder.Entity<Offer>()
                 .HasOne(o => o.Jobseeker)
                 .WithMany(j => j.Offers)
-                .HasForeignKey(o => o.JobSeekerId)
+                .HasForeignKey(o => o.JobseekerId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Offer>()

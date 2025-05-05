@@ -20,5 +20,6 @@ namespace api.Interfaces
         Task<List<Vacancy>> SearchByQueryAsync(VacancyQueryDto query);
         Task<bool> DeleteAsync(Vacancy vacancy);
         Task<List<Vacancy>> GetAllVacanciesAsync();
+        Task<bool> ExistsByIdAsync(Guid id);
     }
 }

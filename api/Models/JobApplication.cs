@@ -11,7 +11,6 @@ namespace api.Models
     /// </summary>
     public class JobApplication
     {
-        public Guid Id { get; set; }
         public Guid VacancyId { get; set; }
         public Vacancy Vacancy { get; set; }
         public Guid JobseekerId { get; set; }

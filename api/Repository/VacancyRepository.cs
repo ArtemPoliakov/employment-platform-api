@@ -47,6 +47,11 @@ namespace api.Service
             return true;
         }
 
+        public async Task<bool> ExistsByIdAsync(Guid id)
+        {
+            return await _dbContext.Vacancies.AnyAsync(v => v.Id == id);
+        }
+
         public async Task<List<Vacancy>> GetAllByCompanyIdAsync(Guid id)
         {
             var vacancies = await _dbContext.Vacancies.Where(v => v.Company.Id == id).ToListAsync();

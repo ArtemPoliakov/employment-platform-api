@@ -130,7 +130,7 @@ namespace api.Mappers
                 UserName = userName,
                 Profession = jobseeker.Profession,
                 Experience = jobseeker.Experience,
-                Education = jobseeker.Education,
+                Education = jobseeker.Education.ToString(),
                 Location = jobseeker.Location,
                 IsEmployed = jobseeker.IsEmployed,
                 AppUserId = jobseeker.AppUserId
