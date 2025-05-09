@@ -84,6 +84,18 @@ namespace api.Service
             return await vacancyQuery.FirstOrDefaultAsync(v => v.Id == id);
         }
 
+        public async Task<List<Vacancy>> GetRecentVacanciesAsync(int page, int pageSize)
+        {
+            return await _dbContext
+                .Vacancies
+                .OrderByDescending(v => v.PublishDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Include(v => v.Company)
+                .ThenInclude(c => c.AppUser)
+                .ToListAsync();
+        }
+
         public async Task<List<Vacancy>> SearchByQueryAsync(VacancyQueryDto query)
         {
             var searchResults = await _vacancyElasticService.SearchVacanciesByQueryAsync(query);

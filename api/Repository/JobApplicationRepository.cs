@@ -13,6 +13,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api.Repository
 {
+    /// <summary>
+    /// Repository for job application operations
+    /// </summary>
     public class JobApplicationRepository : IJobApplicationRepository
     {
         private readonly ApplicationDbContext _dbContext;
@@ -21,6 +24,11 @@ namespace api.Repository
             _dbContext = dbContext;
         }
 
+        /// <summary>
+        /// Creates a new job application
+        /// </summary>
+        /// <param name="jobApplication">The job application to be created</param>
+        /// <returns>The created job application</returns>
         public async Task<JobApplication> CreateAsync(JobApplication jobApplication)
         {
             await _dbContext.JobApplications.AddAsync(jobApplication);
@@ -28,6 +36,12 @@ namespace api.Repository
             return jobApplication;
         }
 
+        /// <summary>
+        /// Deletes the job application from the database using a composite key consisting of a jobseeker ID and a vacancy ID.
+        /// </summary>
+        /// <param name="jobseekerId">The ID of the jobseeker associated with the job application.</param>
+        /// <param name="vacancyId">The ID of the vacancy associated with the job application.</param>
+        /// <returns>The number of rows deleted from the database.</returns>
         public async Task<int> DeleteAsync(Guid jobseekerId, Guid vacancyId)
         {
             int deletedRows = await _dbContext.JobApplications
@@ -36,6 +50,11 @@ namespace api.Repository
             return deletedRows;
         }
 
+        /// <summary>
+        /// Retrieves all job applications made by a specific jobseeker.
+        /// </summary>
+        /// <param name="id">The ID of the jobseeker whose applications are to be retrieved.</param>
+        /// <returns>A list of job application DTOs containing vacancy-specific data for the specified jobseeker.</returns>
         public async Task<List<JobApplicationWithVacancyDto>> GetAllByJobseekerIdAsync(Guid id)
         {
             return await _dbContext.JobApplications
@@ -64,6 +83,12 @@ namespace api.Repository
         }
 
 
+        /// <summary>
+        /// Retrieves all job applications for a specific vacancy.
+        /// </summary>
+        /// <param name="id">The unique identifier of the vacancy.</param>
+        /// <param name="getOnlyNonRejected">A flag indicating whether to exclude rejected applications.</param>
+        /// <returns>A list of job application DTOs containing jobseeker-specific data for the specified vacancy.</returns>
         public async Task<List<JobApplicationWithJobseekerDto>> GetAllByVacancyIdAsync(Guid id, bool getOnlyNonRejected = false)
         {
             var query = _dbContext.JobApplications.AsQueryable();
@@ -94,12 +119,23 @@ namespace api.Repository
             ).ToListAsync();
         }
 
+        /// <summary>
+        /// Retrieves a job application by a composite key consisting of a jobseeker ID and a vacancy ID.
+        /// </summary>
+        /// <param name="jobseekerId">The ID of the jobseeker associated with the job application.</param>
+        /// <param name="vacancyId">The ID of the vacancy associated with the job application.</param>
+        /// <returns>The job application if the composite key is valid; otherwise, null.</returns>
         public async Task<JobApplication?> GetByCompositeKeyAsync(Guid jobseekerId, Guid vacancyId)
         {
             return await _dbContext.JobApplications
             .FirstOrDefaultAsync(a => a.JobseekerId == jobseekerId && a.VacancyId == vacancyId);
         }
 
+        /// <summary>
+        /// Updates an existing job application.
+        /// </summary>
+        /// <param name="jobApplication">The job application to be updated.</param>
+        /// <returns>The updated job application.</returns>
         public async Task<JobApplication> UpdateAsync(JobApplication jobApplication)
         {
             _dbContext.Update(jobApplication);

@@ -9,6 +9,7 @@ using api.Dtos.Admin;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,7 @@ namespace api.Controllers
     /// </summary>
     [Route("api/admin")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly IJobseekerRepository _jobseekerRepository;
@@ -140,18 +142,6 @@ namespace api.Controllers
         }
 
         /// <summary>
-        /// Clears all jobseekers from ElasticSearch.
-        /// </summary>
-        /// <returns>A message indicating the number of jobseekers deleted from ElasticSearch</returns>
-        /// <response code="200">If the deletion is successful</response>
-        [HttpDelete("clearAllJobseekersFromElastic")]
-        public async Task<IActionResult> ClearJobseekersFromElastic()
-        {
-            var deletedCount = await _jobseekerElasticService.RemoveAllAsync();
-            return Ok($"{deletedCount} jobseekers deleted from elastic");
-        }
-
-        /// <summary>
         /// Adds a list of companies to the database in bulk.
         /// </summary>
         /// <param name="companyBulkDtos">The list of companies to be added.</param>
@@ -209,6 +199,23 @@ namespace api.Controllers
             }
         }
 
+        /// <summary>
+        /// Clears all jobseekers from ElasticSearch.
+        /// </summary>
+        /// <returns>A message indicating the number of jobseekers deleted from ElasticSearch</returns>
+        /// <response code="200">If the deletion is successful</response>
+        [HttpDelete("clearAllJobseekersFromElastic")]
+        public async Task<IActionResult> ClearJobseekersFromElastic()
+        {
+            var deletedCount = await _jobseekerElasticService.RemoveAllAsync();
+            return Ok($"{deletedCount} jobseekers deleted from elastic");
+        }
+
+        /// <summary>
+        /// Deletes all documents from the ElasticSearch index with the name <see cref="VacancyElasticService.INDEX_NAME"/>.
+        /// </summary>
+        /// <returns>A message indicating the number of vacancies deleted from ElasticSearch</returns>
+        /// <response code="200">If the deletion is successful</response>
         [HttpDelete("clearAllVacanciesFromElastic")]
         public async Task<IActionResult> DeleteAllVacanciesFromElastic()
         {

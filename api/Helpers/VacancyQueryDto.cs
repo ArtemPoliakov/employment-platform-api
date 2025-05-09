@@ -7,6 +7,9 @@ using api.Enums;
 
 namespace api.Helpers
 {
+    /// <summary>
+    /// Dto for vacancy search query. Contains both search params and pagination params
+    /// </summary>
     public class VacancyQueryDto
     {
         [Range(1, int.MaxValue, ErrorMessage = "Page number must be greater than 0")]

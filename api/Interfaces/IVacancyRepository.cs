@@ -21,5 +21,6 @@ namespace api.Interfaces
         Task<bool> DeleteAsync(Vacancy vacancy);
         Task<List<Vacancy>> GetAllVacanciesAsync();
         Task<bool> ExistsByIdAsync(Guid id);
+        Task<List<Vacancy>> GetRecentVacanciesAsync(int page, int pageSize);
     }
 }

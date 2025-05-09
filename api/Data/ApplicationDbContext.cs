@@ -45,6 +45,12 @@ namespace api.Data
                   NormalizedName = "COMPANY",
                   Id = "22bfe0d9-8d28-4593-ab37-5ffd3097b7ed"
                 },
+                new IdentityRole
+                {
+                  Name = "ADMIN",
+                  NormalizedName = "ADMIN",
+                  Id = "8f29d3c7-6a1e-4b90-925c-3f78d2e1b057"
+                },
             ];
             modelBuilder.Entity<IdentityRole>().HasData(roles);
 
