@@ -20,7 +20,7 @@ namespace api.Controllers
     /// </summary>
     [Route("api/admin")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "ADMIN")]
     public class AdminController : ControllerBase
     {
         private readonly IJobseekerRepository _jobseekerRepository;
