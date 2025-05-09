@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.CustomException.companyExceptions;
+using api.CustomException.VacancyExceptions;
 using api.Data;
 using api.Interfaces;
+using api.Mappers;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,9 +15,11 @@ namespace api.Repository
     public class CompanyRepository : ICompanyRepository
     {
         private readonly ApplicationDbContext _dbContext;
-        public CompanyRepository(ApplicationDbContext dbContext)
+        private readonly IVacancyElasticService _vacancyElasticService;
+        public CompanyRepository(ApplicationDbContext dbContext, IVacancyElasticService vacancyElasticService)
         {
             _dbContext = dbContext;
+            _vacancyElasticService = vacancyElasticService;
         }
 
 
@@ -38,16 +42,46 @@ namespace api.Repository
             return company;
         }
 
+
         /// <summary>
-        /// Gets a company by user id.
+        /// Adds a list of companies to the database in bulk and puts their associated vacancies in ElasticSearch.
         /// </summary>
-        /// <param name="userId">User id to get the company for</param>
-        /// <returns>The corresponding company, or null if it doesn't exist</returns>
-        public async Task<Company?> GetCompanyByUserIdAsync(string userId)
+        /// <param name="companies">The list of companies to be added.</param>
+        /// <returns>The number of companies successfully added to the database.</returns>
+        /// <exception cref="VacancyElasticException">Thrown when updating vacancies in ElasticSearch fails.</exception>
+        public async Task<long> CreateBulkAsync(List<Company> companies)
         {
-            return await _dbContext.Companies.FirstOrDefaultAsync(c => c.AppUserId.Equals(userId));
+            await _dbContext.Companies.AddRangeAsync(companies);
+            int writtenEntriesCount = await _dbContext.SaveChangesAsync();
+            foreach (var company in companies)
+            {
+                var result = await _vacancyElasticService
+                .AddOrUpdateVacancyBulkAsync(company.Vacancies.Select(v => v.ToVacancyElasticDto()));
+                if (!result)
+                {
+                    throw new VacancyElasticException("Failed to add vacancies to elastic");
+                }
+
+            }
+            return writtenEntriesCount;
         }
 
+
+        /// <summary>
+        /// Retrieves a company by its user id from the database.
+        /// </summary>
+        /// <param name="userId">The user id of the company to be retrieved</param>
+        /// <param name="includeVacancies">Whether to include related vacancies in the result</param>
+        /// <returns>The retrieved company, or null if none is found</returns>
+        public async Task<Company?> GetCompanyByUserIdAsync(string userId, bool includeVacancies = false)
+        {
+            var companyQuery = _dbContext.Companies.AsQueryable();
+            if (includeVacancies)
+            {
+                companyQuery = companyQuery.Include(c => c.Vacancies);
+            }
+            return await companyQuery.FirstOrDefaultAsync(c => c.AppUserId.Equals(userId));
+        }
 
         /// <summary>
         /// Updates a company in the database.

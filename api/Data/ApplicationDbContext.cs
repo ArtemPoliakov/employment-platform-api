@@ -45,6 +45,12 @@ namespace api.Data
                   NormalizedName = "COMPANY",
                   Id = "22bfe0d9-8d28-4593-ab37-5ffd3097b7ed"
                 },
+                new IdentityRole
+                {
+                  Name = "ADMIN",
+                  NormalizedName = "ADMIN",
+                  Id = "8f29d3c7-6a1e-4b90-925c-3f78d2e1b057"
+                },
             ];
             modelBuilder.Entity<IdentityRole>().HasData(roles);
 
@@ -85,6 +91,8 @@ namespace api.Data
                 .HasForeignKey(v => v.CompanyId);
 
 
+            modelBuilder.Entity<JobApplication>().HasKey(a => new { a.JobseekerId, a.VacancyId });
+
             modelBuilder.Entity<JobApplication>()
                 .HasOne(a => a.Jobseeker)
                 .WithMany(j => j.JobApplications)
@@ -98,10 +106,12 @@ namespace api.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
 
+            modelBuilder.Entity<Offer>().HasKey(o => new { o.JobseekerId, o.VacancyId });
+
             modelBuilder.Entity<Offer>()
                 .HasOne(o => o.Jobseeker)
                 .WithMany(j => j.Offers)
-                .HasForeignKey(o => o.JobSeekerId)
+                .HasForeignKey(o => o.JobseekerId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Offer>()

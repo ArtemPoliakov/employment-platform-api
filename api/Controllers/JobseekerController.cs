@@ -25,14 +25,11 @@ namespace api.Controllers
     public class JobseekerController : ControllerBase
     {
         private readonly IJobseekerRepository _jobseekerRepository;
-        private readonly IJobseekerElasticService _jobseekerElasticService;
         private readonly UserManager<AppUser> _userManager;
         public JobseekerController(IJobseekerRepository jobseekerRepository,
-                                   UserManager<AppUser> userManager,
-                                   IJobseekerElasticService jobseekerElasticService)
+                                   UserManager<AppUser> userManager)
         {
             _jobseekerRepository = jobseekerRepository;
-            _jobseekerElasticService = jobseekerElasticService;
             _userManager = userManager;
         }
 
@@ -66,12 +63,6 @@ namespace api.Controllers
             jobseeker.AppUserId = appUser.Id;
             var createdJobseeker = await _jobseekerRepository.CreateAsync(jobseeker);
 
-            bool isElasticSuccess = await _jobseekerElasticService
-                                    .AddOrUpdateJobseekerAsync(createdJobseeker.ToJobseekerElasticDto());
-            if (!isElasticSuccess)
-            {
-                throw new JobseekerElasticException("Failed to add jobseeker to elastic");
-            }
             return Ok(createdJobseeker.ToJobseekerDto(appUser.UserName));
         }
 
@@ -122,12 +113,6 @@ namespace api.Controllers
             JobseekerMapper.MapChangesToJobseeker(jobseeker, updateJobseekerDto);
             var editedJobseeker = await _jobseekerRepository.UpdateAsync(jobseeker);
 
-            bool isElasticSuccess = await _jobseekerElasticService
-                                    .AddOrUpdateJobseekerAsync(editedJobseeker.ToJobseekerElasticDto());
-            if (!isElasticSuccess)
-            {
-                throw new JobseekerElasticException("Failed to update jobseeker in elastic");
-            }
             return Ok(editedJobseeker.ToJobseekerDto(appUser.UserName));
         }
 
@@ -145,17 +130,27 @@ namespace api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var jobseekersDocs = await _jobseekerElasticService.SearchJobseekersByQueryAsync(query);
-            var idDictionary = new Dictionary<string, int>();
-            for (int i = 0; i < jobseekersDocs.Count; i++)
-            {
-                idDictionary.Add(jobseekersDocs[i].Id, i);
-            }
-
-            var jobseekers = await _jobseekerRepository.GetJobseekersByUserIdsAsync(idDictionary.Keys.ToList());
-            jobseekers = jobseekers.OrderBy(js => idDictionary[js.AppUserId]).ToList();
+            var jobseekers = await _jobseekerRepository.SearchByQueryAsync(query);
 
             return Ok(jobseekers.Select(js => js.ToJobseekerCompactSearchResultDto(js.AppUser.UserName)).ToList());
+        }
+
+        /// <summary>
+        /// Retrieves a paginated list of the most recent jobseekers.
+        /// </summary>
+        /// <param name="page">Page number for pagination, defaults to 1</param>
+        /// <param name="pageSize">Number of jobseekers per page, defaults to 10</param>
+        /// <returns>A list of recent jobseekers in a compact format, or an error message if the parameters are invalid</returns>
+        /// <response code="400">If the page or pageSize parameters are invalid</response>
+        /// <response code="200">If the jobseekers are retrieved successfully</response>
+        [HttpGet("getRecent")]
+        [Authorize]
+        public async Task<IActionResult> GetRecentJobseekers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            if (page < 1 || pageSize < 1 || pageSize > 100) return BadRequest("Invalid page or pageSize");
+
+            var jobseekers = await _jobseekerRepository.GetRecentJobseekersAsync(page, pageSize);
+            return Ok(jobseekers.Select(js => js.ToJobseekerCompactSearchResultDto(js.AppUser.UserName ?? "none")).ToList());
         }
     }
 }

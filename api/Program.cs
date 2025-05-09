@@ -99,9 +99,13 @@ builder.Host.UseSerilog();
 builder.Services.AddScoped<ITokenService, TockenService>();
 builder.Services.AddScoped<IJobseekerRepository, JobseekerRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IVacancyRepository, VacancyRepository>();
+builder.Services.AddScoped<IVacancyElasticService, VacancyElasticService>();
+builder.Services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
+builder.Services.AddScoped<IOfferRepository, OfferRepository>();
 
 builder.Services.Configure<ElasticSettings>(builder.Configuration.GetSection("ElasticSettings"));
-builder.Services.AddSingleton<IJobseekerElasticService, JobseekerElasticService>();  // maybe scoped?
+builder.Services.AddSingleton<IJobseekerElasticService, JobseekerElasticService>();
 
 var app = builder.Build();
 

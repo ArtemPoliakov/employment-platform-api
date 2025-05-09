@@ -11,10 +11,9 @@ namespace api.Models
     /// </summary>
     public class Offer
     {
-        public Guid Id { get; set; }
         public Guid VacancyId { get; set; }
         public Vacancy Vacancy { get; set; }
-        public Guid JobSeekerId { get; set; }
+        public Guid JobseekerId { get; set; }
         public Jobseeker Jobseeker { get; set; }
         public JobApplicationStatuses Status { get; set; } = JobApplicationStatuses.PENDING;
         public string CompanyMessage { get; set; } = string.Empty;
