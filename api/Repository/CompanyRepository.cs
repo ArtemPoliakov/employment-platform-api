@@ -66,6 +66,23 @@ namespace api.Repository
             return writtenEntriesCount;
         }
 
+        /// <summary>
+        /// Creates a default company for a user.
+        /// The default company has description and location set to "none".
+        /// </summary>
+        /// <param name="userId">The user id to associate with the default company.</param>
+        /// <returns>The created default company.</returns>
+        public async Task<Company> CreateDefaultCompanyAsync(string userId)
+        {
+            var defaultCompany = new Company
+            {
+                AppUserId = userId,
+                SelfDescription = "none",
+                Location = "none",
+            };
+            return await CreateAsync(defaultCompany);
+        }
+
 
         /// <summary>
         /// Retrieves a company by its user id from the database.

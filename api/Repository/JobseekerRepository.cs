@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.CustomException;
 using api.Data;
+using api.Enums;
 using api.Helpers;
 using api.Interfaces;
 using api.Mappers;
@@ -45,6 +46,36 @@ namespace api.Repository
             }
 
             return jobseeker;
+        }
+
+        /// <summary>
+        /// Creates a new jobseeker with default values for the given user ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user to create a jobseeker for.</param>
+        /// <returns>The created jobseeker entity.</returns>
+        /// <exception cref="JobseekerElasticException">
+        /// Thrown when the jobseeker fails to be added to ElasticSearch.
+        /// </exception>
+        public async Task<Jobseeker> CreateDefaultJobseekerAsync(string userId)
+        {
+            var defaultJobseeker = new Jobseeker
+            {
+                AppUserId = userId,
+                Profession = "none",
+                Experience = 0,
+                Education = DegreeTypes.NONE,
+                Location = "none",
+                PreviousWorkplace = "none",
+                PreviousPosition = "none",
+                QuitReason = "none",
+                FamilyConditions = "none",
+                LivingConditions = "none",
+                Preferences = "none",
+                SelfDescription = "none",
+                IsEmployed = false
+            };
+
+            return await CreateAsync(defaultJobseeker);
         }
 
         /// <summary>

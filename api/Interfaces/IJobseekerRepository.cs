@@ -20,5 +20,6 @@ namespace api.Interfaces
         Task<List<Jobseeker>> GetJobseekersByUserIdsAsync(List<string> userIds);
         Task<List<Jobseeker>> SearchByQueryAsync(JobseekerQueryDto jobseekerQueryDto);
         Task<List<Jobseeker>> GetRecentJobseekersAsync(int page, int pageSize);
+        Task<Jobseeker> CreateDefaultJobseekerAsync(string userId);
     }
 }

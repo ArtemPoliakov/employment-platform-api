@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using api.CustomException;
+using api.CustomException.AuthExceptions;
+using api.Data;
 using api.Dtos;
 using api.Enums;
 using api.Interfaces;
@@ -25,17 +28,29 @@ namespace api.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signinManager;
         private readonly ITokenService _tokenService;
-        public AuthController(UserManager<AppUser> userManager, SignInManager<AppUser> signinManager, ITokenService tokenService)
+        private readonly IJobseekerRepository _jobseekerRepository;
+        private readonly ICompanyRepository _companyRepository;
+        private readonly ApplicationDbContext _dbContext;
+
+        public AuthController(UserManager<AppUser> userManager,
+                              SignInManager<AppUser> signinManager,
+                              ITokenService tokenService,
+                              IJobseekerRepository jobseekerRepository,
+                              ICompanyRepository companyRepository,
+                              ApplicationDbContext dbContext)
         {
             _userManager = userManager;
             _signinManager = signinManager;
             _tokenService = tokenService;
+            _jobseekerRepository = jobseekerRepository;
+            _companyRepository = companyRepository;
+            _dbContext = dbContext;
         }
 
         /// <summary>
-        /// Registers new user
+        /// Registers a new user and creates default data for jobseeker or company based on the role.
         /// </summary>
-        /// <param name="registerDto">Data for registering</param>
+        /// <param name="registerDto">Data for registering the user</param>
         /// <returns>Ok with user data and token on success, BadRequest on invalid model state,
         /// StatusCode 400 with errors on user creation failure, StatusCode 500 with errors on role assignment failure</returns>
         [HttpPost("register")]
@@ -44,34 +59,59 @@ namespace api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var appUser = registerDto.ToAppUser();
-            var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
-
-            if (createdUser.Succeeded)
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
             {
-                var roleResult = await _userManager.AddToRoleAsync(appUser, registerDto.SafeRole.ToString());
-                if (roleResult.Succeeded)
+                var appUser = registerDto.ToAppUser();
+                var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
+
+                if (createdUser.Succeeded)
                 {
-                    return
-                    Ok(
-                        new NewUserDto
+                    var roleResult = await _userManager.AddToRoleAsync(appUser, registerDto.SafeRole.ToString());
+                    if (roleResult.Succeeded)
+                    {
+                        if (registerDto.SafeRole == AllowedSafeRoles.Jobseeker)
                         {
-                            Email = appUser.Email,
-                            UserName = appUser.UserName,
-                            PhoneNumber = appUser.PhoneNumber,
-                            Role = registerDto.SafeRole.ToString().ToUpper(),
-                            Token = await _tokenService.CreateToken(appUser)
+                            await _jobseekerRepository.CreateDefaultJobseekerAsync(appUser.Id);
                         }
-                    );
+                        else if (registerDto.SafeRole == AllowedSafeRoles.Company)
+                        {
+                            await _companyRepository.CreateDefaultCompanyAsync(appUser.Id);
+                        }
+
+                        await transaction.CommitAsync();
+
+                        return
+                        Ok(
+                            new NewUserDto
+                            {
+                                Email = appUser.Email,
+                                UserName = appUser.UserName,
+                                PhoneNumber = appUser.PhoneNumber,
+                                Role = registerDto.SafeRole.ToString().ToUpper(),
+                                Token = await _tokenService.CreateToken(appUser)
+                            }
+                        );
+                    }
+                    else
+                    {
+                        throw new AssignToRoleException(string.Join(", ", roleResult.Errors.Select(x => x.Description)));
+                    }
                 }
                 else
                 {
-                    return StatusCode(500, roleResult.Errors);
+                    throw new CreateAppUserException(string.Join(", ", createdUser.Errors.Select(x => x.Description)));
                 }
             }
-            else
+            catch (CreateAppUserException e)
             {
-                return StatusCode(400, createdUser.Errors);
+                await transaction.RollbackAsync();
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, "Internal server error");
             }
         }
 
