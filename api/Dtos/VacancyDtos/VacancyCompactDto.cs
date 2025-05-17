@@ -19,5 +19,7 @@ namespace api.Dtos.VacancyDtos
         public float SalaryMax { get; set; } = 0;
         public string WorkMode { get; set; } = VacancyWorkModes.NONE.ToString();
         public Guid Id { get; set; }
+        public string ApplicationStatus { get; set; } = string.Empty;
+        public string OfferStatus { get; set; } = string.Empty;
     }
 }
