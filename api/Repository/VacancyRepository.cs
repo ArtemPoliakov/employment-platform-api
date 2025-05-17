@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.CustomException.VacancyExceptions;
 using api.Data;
+using api.Dtos.VacancyDtos;
 using api.Helpers;
 using api.Interfaces;
 using api.Mappers;
@@ -122,6 +123,43 @@ namespace api.Service
                 throw new VacancyElasticException("Failed to update vacancy in elastic");
             }
             return vacancy;
+        }
+
+        public async Task<VacancyDto?> GetVacancyDtoByIdAsync(Guid vacancyId, Guid requesterId)
+        {
+            var vacancyQuery = _dbContext.Vacancies.AsQueryable();
+
+            return await vacancyQuery
+            .Where(v => v.Id == vacancyId)
+            .Select(
+                    v => new VacancyDto
+                    {
+
+                        Id = v.Id,
+                        CompanyUserName = v.Company.AppUser.UserName,
+                        Title = v.Title,
+                        Description = v.Description,
+                        CandidateDescription = v.CandidateDescription,
+                        Position = v.Position,
+                        SalaryMin = v.SalaryMin,
+                        SalaryMax = v.SalaryMax,
+                        WorkMode = v.WorkMode.ToString(),
+                        LivingConditions = v.LivingConditions,
+                        EditDate = v.EditDate,
+                        PublishDate = v.PublishDate,
+                        ApplicationStatus = v
+                                            .JobApplications
+                                            .FirstOrDefault(a =>
+                                                  a.VacancyId == vacancyId &&
+                                                   a.JobseekerId == requesterId).Status.ToString(),
+                        OfferStatus = v
+                                            .Offers
+                                            .FirstOrDefault(o =>
+                                                  o.VacancyId == vacancyId &&
+                                                   o.JobseekerId == requesterId).Status.ToString(),
+                    }
+                   )
+            .FirstOrDefaultAsync();
         }
     }
 }

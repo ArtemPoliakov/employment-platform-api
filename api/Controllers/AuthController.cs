@@ -64,6 +64,7 @@ namespace api.Controllers
             {
                 var appUser = registerDto.ToAppUser();
                 var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
+                Guid accountDataId = Guid.Empty;
 
                 if (createdUser.Succeeded)
                 {
@@ -72,11 +73,11 @@ namespace api.Controllers
                     {
                         if (registerDto.SafeRole == AllowedSafeRoles.Jobseeker)
                         {
-                            await _jobseekerRepository.CreateDefaultJobseekerAsync(appUser.Id);
+                            accountDataId = (await _jobseekerRepository.CreateDefaultJobseekerAsync(appUser.Id)).Id;
                         }
                         else if (registerDto.SafeRole == AllowedSafeRoles.Company)
                         {
-                            await _companyRepository.CreateDefaultCompanyAsync(appUser.Id);
+                            accountDataId = (await _companyRepository.CreateDefaultCompanyAsync(appUser.Id)).Id;
                         }
 
                         await transaction.CommitAsync();
@@ -89,7 +90,8 @@ namespace api.Controllers
                                 UserName = appUser.UserName,
                                 PhoneNumber = appUser.PhoneNumber,
                                 Role = registerDto.SafeRole.ToString().ToUpper(),
-                                Token = await _tokenService.CreateToken(appUser)
+                                Token = await _tokenService.CreateToken(appUser),
+                                AccountDataId = accountDataId
                             }
                         );
                     }
@@ -135,16 +137,24 @@ namespace api.Controllers
             if (!result.Succeeded)
                 return Unauthorized("Invalid username and/or password");
             var roles = await _userManager.GetRolesAsync(appUser);
+
+            Guid accountDataId = Guid.Empty;
+
+            if (roles.FirstOrDefault()?.ToLower() == AllowedSafeRoles.Jobseeker.ToString().ToLower())
+                accountDataId = (await _jobseekerRepository.GetJobseekerByUserIdAsync(appUser.Id)).Id;
+            else if (roles.FirstOrDefault()?.ToLower() == AllowedSafeRoles.Company.ToString().ToLower())
+                accountDataId = (await _companyRepository.GetCompanyByUserIdAsync(appUser.Id)).Id;
             return Ok(
-                new NewUserDto
-                {
-                    UserName = appUser.UserName,
-                    Email = appUser.Email,
-                    PhoneNumber = appUser.PhoneNumber,
-                    Role = roles.FirstOrDefault() ?? "none",
-                    Token = await _tokenService.CreateToken(appUser)
-                }
-            );
+                        new NewUserDto
+                        {
+                            UserName = appUser.UserName,
+                            Email = appUser.Email,
+                            PhoneNumber = appUser.PhoneNumber,
+                            Role = roles.FirstOrDefault() ?? "none",
+                            Token = await _tokenService.CreateToken(appUser),
+                            AccountDataId = accountDataId
+                        }
+                    );
         }
 
         /// <summary>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Dtos.VacancyDtos;
 using api.Helpers;
 using api.Models;
 
@@ -22,5 +23,6 @@ namespace api.Interfaces
         Task<List<Vacancy>> GetAllVacanciesAsync();
         Task<bool> ExistsByIdAsync(Guid id);
         Task<List<Vacancy>> GetRecentVacanciesAsync(int page, int pageSize);
+        Task<VacancyDto?> GetVacancyDtoByIdAsync(Guid vacancyId, Guid requesterId);
     }
 }

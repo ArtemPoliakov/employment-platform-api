@@ -24,13 +24,16 @@ namespace api.Controllers
     {
         private readonly IVacancyRepository _vacancyRepository;
         private readonly ICompanyRepository _companyRepository;
+        private readonly IJobseekerRepository _jobseekerRepository;
         private readonly UserManager<AppUser> _userManager;
         public VacancyController(IVacancyRepository vacancyRepository,
                                  ICompanyRepository companyRepository,
+                                 IJobseekerRepository jobseekerRepository,
                                  UserManager<AppUser> userManager)
         {
             _vacancyRepository = vacancyRepository;
             _companyRepository = companyRepository;
+            _jobseekerRepository = jobseekerRepository;
             _userManager = userManager;
         }
 
@@ -81,6 +84,22 @@ namespace api.Controllers
             if (companyAppUser == null) return BadRequest("Company user not found");
 
             return Ok(vacancy.ToVacancyDto(companyAppUser.UserName ?? "none"));
+        }
+
+        [HttpGet("getWithStatus/{vacancyId}")]
+        [Authorize]
+        public async Task<IActionResult> GetVacancyWithStatusById([FromRoute] Guid vacancyId)
+        {
+            var appUserRequester = await _userManager.FindByNameAsync(User.GetUsername());
+            if (appUserRequester == null) return BadRequest("User not found");
+
+            var jobseekerRequester = await _jobseekerRepository.GetJobseekerByUserIdAsync(appUserRequester.Id);
+            if (jobseekerRequester == null) return BadRequest("Jobseeker not found");
+
+            var vacancyDto = await _vacancyRepository.GetVacancyDtoByIdAsync(vacancyId, jobseekerRequester.Id);
+            if (vacancyDto == null) return BadRequest("Vacancy not found");
+
+            return Ok(vacancyDto);
         }
 
         /// <summary>

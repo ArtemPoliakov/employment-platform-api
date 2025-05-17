@@ -23,5 +23,7 @@ namespace api.Dtos.VacancyDtos
         public string LivingConditions { get; set; } = string.Empty;
         public DateTime EditDate { get; set; }
         public DateTime PublishDate { get; set; }
+        public string ApplicationStatus { get; set; } = string.Empty;
+        public string OfferStatus { get; set; } = string.Empty;
     }
 }
