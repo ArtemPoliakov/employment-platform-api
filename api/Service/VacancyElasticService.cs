@@ -173,7 +173,7 @@ namespace api.Service
             });
 
 
-            if (!string.IsNullOrWhiteSpace(query.WorkMode))
+            if (!(string.IsNullOrWhiteSpace(query.WorkMode) || query.WorkMode.ToUpper() == "NONE"))
             {
                 mustQueries.Add(new TermQuery("workMode.keyword")
                 {
