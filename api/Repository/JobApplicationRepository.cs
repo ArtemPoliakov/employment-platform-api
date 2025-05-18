@@ -50,15 +50,21 @@ namespace api.Repository
             return deletedRows;
         }
 
+
         /// <summary>
-        /// Retrieves all job applications made by a specific jobseeker.
+        /// Retrieves the pageSize number of job applications associated with a specific jobseeker.
         /// </summary>
-        /// <param name="id">The ID of the jobseeker whose applications are to be retrieved.</param>
-        /// <returns>A list of job application DTOs containing vacancy-specific data for the specified jobseeker.</returns>
-        public async Task<List<JobApplicationWithVacancyDto>> GetAllByJobseekerIdAsync(Guid id)
+        /// <param name="id">The unique identifier of the jobseeker.</param>
+        /// <param name="page">Page number for pagination, defaults to 1.</param>
+        /// <param name="pageSize">Number of job applications per page, defaults to 10.</param>
+        /// <returns>A list of job application DTOs containing jobseeker-specific data for the specified jobseeker.</returns>
+        public async Task<List<JobApplicationWithVacancyDto>> GetAllByJobseekerIdAsync(Guid id, int page, int pageSize)
         {
             return await _dbContext.JobApplications
                         .Where(a => a.JobseekerId == id)
+                        .Skip((page - 1) * pageSize)
+                        .Take(pageSize)
+                        .OrderByDescending(a => a.CreationDate)
                         .Select(
                             a => new JobApplicationWithVacancyDto
                             {
