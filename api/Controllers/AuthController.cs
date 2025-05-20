@@ -197,13 +197,29 @@ namespace api.Controllers
                 return NotFound("User not found");
             var roles = await _userManager.GetRolesAsync(appUser);
 
+            var accountDataId = Guid.Empty;
+            if (roles.FirstOrDefault()?.ToLower() == AllowedSafeRoles.Jobseeker.ToString().ToLower())
+                accountDataId = (await _jobseekerRepository.GetJobseekerByUserIdAsync(appUser.Id)).Id;
+            else if (roles.FirstOrDefault()?.ToLower() == AllowedSafeRoles.Company.ToString().ToLower())
+                accountDataId = (await _companyRepository.GetCompanyByUserIdAsync(appUser.Id)).Id;
+
             if (updateAccountDataDto.UserName != null) appUser.UserName = updateAccountDataDto.UserName;
             if (updateAccountDataDto.Email != null) appUser.Email = updateAccountDataDto.Email;
             if (updateAccountDataDto.PhoneNumber != null) appUser.PhoneNumber = updateAccountDataDto.PhoneNumber;
 
             var result = await _userManager.UpdateAsync(appUser);
             if (result.Succeeded)
-                return Ok(appUser.ToAppUserPublicDataDto(roles.First()));
+                return Ok(
+                        new NewUserDto
+                        {
+                            UserName = appUser.UserName,
+                            Email = appUser.Email,
+                            PhoneNumber = appUser.PhoneNumber,
+                            Role = roles.FirstOrDefault() ?? "none",
+                            Token = await _tokenService.CreateToken(appUser),
+                            AccountDataId = accountDataId
+                        }
+                    );
 
             return StatusCode(500, result.Errors);
         }

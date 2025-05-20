@@ -62,9 +62,9 @@ namespace api.Repository
         {
             return await _dbContext.JobApplications
                         .Where(a => a.JobseekerId == id)
+                        .OrderByDescending(a => a.CreationDate)
                         .Skip((page - 1) * pageSize)
                         .Take(pageSize)
-                        .OrderByDescending(a => a.CreationDate)
                         .Select(
                             a => new JobApplicationWithVacancyDto
                             {

@@ -75,9 +75,9 @@ namespace api.Repository
             }
             return await query
                          .Where(o => o.JobseekerId == id)
+                         .OrderByDescending(a => a.CreationDate)
                          .Skip((page - 1) * pageSize)
                          .Take(pageSize)
-                         .OrderByDescending(a => a.CreationDate)
                          .Select(
                              o => new OfferWithVacancyDto
                              {
