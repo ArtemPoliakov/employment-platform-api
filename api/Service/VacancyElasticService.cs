@@ -146,17 +146,25 @@ namespace api.Service
 
             if (!string.IsNullOrWhiteSpace(query.GeneralDescription))
             {
-                mustQueries.Add(new MatchQuery("title")
+                var shouldQueries = new List<Query>
                 {
-                    Query = query.GeneralDescription,
-                    Fuzziness = new Fuzziness("auto"),
-                    Boost = 2.0f
-                });
+                    new MatchQuery("title")
+                    {
+                        Query = query.GeneralDescription,
+                        Fuzziness = new Fuzziness("auto"),
+                        Boost = 2.0f
+                    },
+                    new MatchQuery("description")
+                    {
+                        Query = query.GeneralDescription,
+                        Fuzziness = new Fuzziness("auto")
+                    }
+                };
 
-                mustQueries.Add(new MatchQuery("description")
+                mustQueries.Add(new BoolQuery
                 {
-                    Query = query.GeneralDescription,
-                    Fuzziness = new Fuzziness("auto"),
+                    Should = shouldQueries,
+                    MinimumShouldMatch = 1
                 });
             }
 
