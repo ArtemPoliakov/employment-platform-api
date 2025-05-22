@@ -1,8 +1,6 @@
 *.env*
-*.sln*
 *.vscode*
 *obj*
-*.csproj*
 *appsettings*
 *bin*
 *Migrations*
