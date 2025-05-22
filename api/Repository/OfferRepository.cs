@@ -50,13 +50,23 @@ namespace api.Repository
             return deletedRows;
         }
 
+
         /// <summary>
-        /// Retrieves all offers associated with a specific jobseeker.
+        /// Retrieves all offers made to a jobseeker.
+        /// The request query should contain the jobseeker id.
+        /// The request query should contain a flag indicating whether to exclude rejected offers.
+        /// The request query should contain the page number and page size for pagination.
+        /// The response contains offer-specific data and associated vacancy data.
         /// </summary>
-        /// <param name="id">The unique identifier of the jobseeker.</param>
+        /// <param name="id">The id of the jobseeker.</param>
         /// <param name="getOnlyNonRejected">A flag indicating whether to exclude rejected offers.</param>
-        /// <returns>A list of offers with associated vacancy details for the specified jobseeker.</returns>
-        public async Task<List<OfferWithVacancyDto>> GetAllByJobseekerIdAsync(Guid id, bool getOnlyNonRejected)
+        /// <param name="page">Page number for pagination, defaults to 1.</param>
+        /// <param name="pageSize">Number of job applications per page, defaults to 10.</param>
+        /// <returns>A list of offer dtos containing vacancy data, or an error message if the user is not found, jobseeker data does not exist, or the request is invalid.</returns>
+        /// <response code="400">If the request is invalid, user is not found, or jobseeker data does not exist</response>
+        /// <response code="401">If the user is unauthorized to get this data.</response>
+        /// <response code="200">If the offers are retrieved successfully.</response>
+        public async Task<List<OfferWithVacancyDto>> GetAllByJobseekerIdAsync(Guid id, bool getOnlyNonRejected, int page, int pageSize)
         {
             var query = _dbContext.Offers.AsQueryable();
             if (getOnlyNonRejected)
@@ -65,6 +75,9 @@ namespace api.Repository
             }
             return await query
                          .Where(o => o.JobseekerId == id)
+                         .OrderByDescending(a => a.CreationDate)
+                         .Skip((page - 1) * pageSize)
+                         .Take(pageSize)
                          .Select(
                              o => new OfferWithVacancyDto
                              {

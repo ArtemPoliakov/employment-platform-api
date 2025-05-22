@@ -11,7 +11,7 @@ namespace api.Interfaces
     {
         Task<JobApplication> CreateAsync(JobApplication jobApplication);
         Task<JobApplication> UpdateAsync(JobApplication jobApplication);
-        Task<List<JobApplicationWithVacancyDto>> GetAllByJobseekerIdAsync(Guid id);
+        Task<List<JobApplicationWithVacancyDto>> GetAllByJobseekerIdAsync(Guid id, int page, int pageSize);
         Task<List<JobApplicationWithJobseekerDto>> GetAllByVacancyIdAsync(Guid id, bool getOnlyNonRejected);
         Task<JobApplication?> GetByCompositeKeyAsync(Guid jobseekerId, Guid vacancyId);
         Task<int> DeleteAsync(Guid jobseekerId, Guid vacancyId);

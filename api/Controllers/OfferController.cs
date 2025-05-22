@@ -76,25 +76,29 @@ namespace api.Controllers
             var offer = new Offer
             {
                 VacancyId = createOfferDto.VacancyId,
-                JobseekerId = jobseeker.Id
+                JobseekerId = jobseeker.Id,
+                CompanyMessage = createOfferDto.CompanyMessage
             };
             await _offerRepository.CreateAsync(offer);
             return Ok("Created successfully");
         }
 
+
         /// <summary>
-        /// Retrieves all offers made to a jobseeker.
-        /// The request query should contain the jobseeker username.
-        /// Only the username owner may get the data.
+        /// Retrieves all offers related to the jobseeker with the specified username.
+        /// Only the jobseeker with the matching username may access this data.
         /// Dto contains offer-specific data and vacancy data.
         /// </summary>
-        /// <returns>A list of offer dtos, or an error message if the user is not found, jobseeker data does not exist, or the request is invalid.</returns>
-        /// <response code="400">If the request is invalid, user is not found, or jobseeker data does not exist</response>
+        /// <param name="jobseekerUsername">The username of the jobseeker whose offers are to be retrieved.</param>
+        /// <param name="page">Page number for pagination, defaults to 1.</param>
+        /// <param name="pageSize">Number of offers per page, defaults to 10.</param>
+        /// <returns>A list of offer dtos, or an error message if the request is invalid, user is not found, or jobseeker data does not exist.</returns>
+        /// <response code="400">If the request is invalid, user is not found, or jobseeker data does not exist.</response>
         /// <response code="401">If the user is unauthorized to get this data.</response>
         /// <response code="200">If the offers are retrieved successfully.</response>
         [HttpGet("getAllByJobseekerUserName")]
         [Authorize(Roles = "JOBSEEKER")]
-        public async Task<IActionResult> GetAllByJobseekerUserName([FromQuery] string jobseekerUsername)
+        public async Task<IActionResult> GetAllByJobseekerUserName([FromQuery] string jobseekerUsername, int page, int pageSize)
         {
             if (jobseekerUsername != User.GetUsername())
                 return Unauthorized("You are not authorized to get this data");
@@ -106,7 +110,7 @@ namespace api.Controllers
             if (jobseeker == null)
                 return BadRequest("No jobseeker data registered for the account");
 
-            var offers = await _offerRepository.GetAllByJobseekerIdAsync(jobseeker.Id, true);
+            var offers = await _offerRepository.GetAllByJobseekerIdAsync(jobseeker.Id, true, page, pageSize);
             return Ok(offers);
         }
 

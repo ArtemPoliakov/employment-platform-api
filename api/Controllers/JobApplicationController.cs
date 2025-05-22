@@ -77,20 +77,24 @@ namespace api.Controllers
             return Ok("Created successfully");
         }
 
+
         /// <summary>
-        /// Retrieves all job applications made by a jobseeker.
-        /// The request query should contain the jobseeker username.
-        /// Only the username owner may get the data.
-        /// Dto contains application-specific data and vacancy data.
+        /// Retrieves all job applications made by the jobseeker with the specified username.
+        /// Only the jobseeker with the matching username may access this data.
         /// </summary>
-        /// <returns>A list of job application dtos, or an error message if the user is not found, jobseeker data does not exist, or the request is invalid.</returns>
-        /// <response code="400">If the request is invalid, user is not found, or jobseeker data does not exist</response>
+        /// <param name="jobseekerUsername">The username of the jobseeker whose applications are to be retrieved.</param>
+        /// <param name="page">Page number for pagination, defaults to 1.</param>
+        /// <param name="pageSize">Number of applications per page, defaults to 10.</param>
+        /// <returns>A list of job application DTOs, or an error message if the request is invalid, user is not found, or jobseeker data does not exist.</returns>
+        /// <response code="400">If the page or pageSize parameters are invalid, user is not found, or jobseeker data does not exist.</response>
         /// <response code="401">If the user is unauthorized to get this data.</response>
         /// <response code="200">If the job applications are retrieved successfully.</response>
         [HttpGet("getAllByJobseekerUserName")]
         [Authorize(Roles = "JOBSEEKER")]
-        public async Task<IActionResult> GetAllByJobseekerUserName([FromQuery] string jobseekerUsername)
+        public async Task<IActionResult> GetAllByJobseekerUserName([FromQuery] string jobseekerUsername, int page = 1, int pageSize = 10)
         {
+            if (page < 1 || pageSize < 1 || pageSize > 100) return BadRequest("Invalid page or pageSize");
+
             if (jobseekerUsername != User.GetUsername())
                 return Unauthorized("You are not authorized to get this data");
 
@@ -101,7 +105,7 @@ namespace api.Controllers
             if (jobseeker == null)
                 return BadRequest("No jobseeker data registered for the account");
 
-            var jobApplicationDtos = await _jobApplicationRepository.GetAllByJobseekerIdAsync(jobseeker.Id);
+            var jobApplicationDtos = await _jobApplicationRepository.GetAllByJobseekerIdAsync(jobseeker.Id, page, pageSize);
             return Ok(jobApplicationDtos);
         }
 

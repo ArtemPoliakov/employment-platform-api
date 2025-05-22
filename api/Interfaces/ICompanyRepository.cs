@@ -13,5 +13,6 @@ namespace api.Interfaces
         Task<Company> UpdateAsync(Company company);
         Task<bool> CompanyExistsByUserIdAsync(string userId);
         Task<Company?> GetCompanyByUserIdAsync(string userId, bool includeVacancies = false);
+        Task<Company> CreateDefaultCompanyAsync(string userId);
     }
 }

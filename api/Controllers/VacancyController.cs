@@ -24,13 +24,16 @@ namespace api.Controllers
     {
         private readonly IVacancyRepository _vacancyRepository;
         private readonly ICompanyRepository _companyRepository;
+        private readonly IJobseekerRepository _jobseekerRepository;
         private readonly UserManager<AppUser> _userManager;
         public VacancyController(IVacancyRepository vacancyRepository,
                                  ICompanyRepository companyRepository,
+                                 IJobseekerRepository jobseekerRepository,
                                  UserManager<AppUser> userManager)
         {
             _vacancyRepository = vacancyRepository;
             _companyRepository = companyRepository;
+            _jobseekerRepository = jobseekerRepository;
             _userManager = userManager;
         }
 
@@ -81,6 +84,22 @@ namespace api.Controllers
             if (companyAppUser == null) return BadRequest("Company user not found");
 
             return Ok(vacancy.ToVacancyDto(companyAppUser.UserName ?? "none"));
+        }
+
+        [HttpGet("getWithStatus/{vacancyId}")]
+        [Authorize]
+        public async Task<IActionResult> GetVacancyWithStatusById([FromRoute] Guid vacancyId)
+        {
+            var appUserRequester = await _userManager.FindByNameAsync(User.GetUsername());
+            if (appUserRequester == null) return BadRequest("User not found");
+
+            var jobseekerRequester = await _jobseekerRepository.GetJobseekerByUserIdAsync(appUserRequester.Id);
+            if (jobseekerRequester == null) return BadRequest("Jobseeker not found");
+
+            var vacancyDto = await _vacancyRepository.GetVacancyDtoByIdAsync(vacancyId, jobseekerRequester.Id);
+            if (vacancyDto == null) return BadRequest("Vacancy not found");
+
+            return Ok(vacancyDto);
         }
 
         /// <summary>
@@ -162,29 +181,39 @@ namespace api.Controllers
             return Ok(updatedVacancy.ToVacancyDto(companyAppUser.UserName ?? "none"));
         }
 
+
         /// <summary>
-        /// Searches for vacancies by given query and returns a list of compact vacancy documents.
+        /// Searches for vacancies based on the specified query parameters.
         /// </summary>
-        /// <param name="searchVacancyDto">The query to search by.</param>
-        /// <returns>The list of compact vacancy documents if the search operation was successful; otherwise, an empty list.</returns>
+        /// <param name="searchVacancyDto">The data transfer object containing search and pagination parameters.</param>
+        /// <returns>A list of matching vacancies in a compact dto format, or an error message if the request is invalid or the user is not found.</returns>
+        /// <response code="400">If the request is invalid or the user is not found</response>
+        /// <response code="200">If the search is successful</response>
         [HttpGet("search")]
         [Authorize]
         public async Task<IActionResult> SearchByQuery([FromQuery] VacancyQueryDto searchVacancyDto)
         {
-            var vacancies = await _vacancyRepository.SearchByQueryAsync(searchVacancyDto);
+            var appUser = await _userManager.FindByNameAsync(User.GetUsername());
+            if (appUser == null) return BadRequest("User not found");
+
+            var jobseeker = await _jobseekerRepository.GetJobseekerByUserIdAsync(appUser.Id);
+            if (jobseeker == null) return BadRequest("Jobseeker not found");
+
+            var vacancies = await _vacancyRepository.SearchByQueryAsync(searchVacancyDto, jobseeker.Id);
             return Ok(
             vacancies
-            .Select(v => v.ToVacancyCompactDto(v.Company.AppUser.UserName ?? "none"))
+            .Select(v => v.ToVacancyCompactDto())
             .ToList());
         }
 
+
         /// <summary>
-        /// Retrieves a paginated list of the most recent vacancies.
+        /// Retrieves a paginated list of the most recently published vacancies visible to the requesting jobseeker.
         /// </summary>
         /// <param name="page">Page number for pagination, defaults to 1</param>
         /// <param name="pageSize">Number of vacancies per page, defaults to 10</param>
-        /// <returns>A list of recent vacancies in a compact format, or an error message if the parameters are invalid</returns>
-        /// <response code="400">If the page or pageSize parameters are invalid</response>
+        /// <returns>The list of recent vacancies, or an error message if the parameters are invalid, user is not found, or jobseeker data does not exist</returns>
+        /// <response code="400">If the page or pageSize parameters are invalid, user is not found, or jobseeker data does not exist</response>
         /// <response code="200">If the vacancies are retrieved successfully</response>
         [HttpGet("getRecent")]
         [Authorize]
@@ -192,11 +221,14 @@ namespace api.Controllers
         {
             if (page < 1 || pageSize < 1 || pageSize > 100) return BadRequest("Invalid page or pageSize");
 
-            var vacancies = await _vacancyRepository.GetRecentVacanciesAsync(page, pageSize);
-            return Ok(
-            vacancies
-            .Select(v => v.ToVacancyCompactDto(v.Company.AppUser.UserName ?? "none"))
-            .ToList());
+            var appUser = await _userManager.FindByNameAsync(User.GetUsername());
+            if (appUser == null) return BadRequest("User not found");
+
+            var jobseeker = await _jobseekerRepository.GetJobseekerByUserIdAsync(appUser.Id);
+            if (jobseeker == null) return BadRequest("Jobseeker not found");
+
+            var vacancies = await _vacancyRepository.GetRecentVacanciesAsync(page, pageSize, jobseeker.Id);
+            return Ok(vacancies);
         }
     }
 }

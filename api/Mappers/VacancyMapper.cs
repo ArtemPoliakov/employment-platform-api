@@ -118,5 +118,28 @@ namespace api.Mappers
                 Id = vacancy.Id
             };
         }
+
+        /// <summary>
+        /// Maps data from VacancyDto to VacancyCompactDto.
+        /// </summary>
+        /// <param name="vacancyDto">The VacancyDto to be mapped.</param>
+        /// <returns>The mapped VacancyCompactDto.</returns>
+        public static VacancyCompactDto ToVacancyCompactDto(this VacancyDto vacancyDto)
+        {
+            return new VacancyCompactDto
+            {
+                CompanyUserName = vacancyDto.CompanyUserName,
+                Title = vacancyDto.Title,
+                Description = vacancyDto.Description,
+                Position = vacancyDto.Position,
+                SalaryMin = vacancyDto.SalaryMin,
+                SalaryMax = vacancyDto.SalaryMax,
+                WorkMode = vacancyDto.WorkMode,
+                Id = vacancyDto.Id,
+                ApplicationStatus = vacancyDto.ApplicationStatus,
+                OfferStatus = vacancyDto.OfferStatus
+            };
+        }
+
     }
 }

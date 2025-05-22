@@ -96,6 +96,17 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Host.UseSerilog();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 builder.Services.AddScoped<ITokenService, TockenService>();
 builder.Services.AddScoped<IJobseekerRepository, JobseekerRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
@@ -108,14 +119,13 @@ builder.Services.Configure<ElasticSettings>(builder.Configuration.GetSection("El
 builder.Services.AddSingleton<IJobseekerElasticService, JobseekerElasticService>();
 
 var app = builder.Build();
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowFrontend");
 app.UseMiddleware<ExceptionHandlerMiddleware>();
-
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
