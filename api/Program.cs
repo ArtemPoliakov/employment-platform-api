@@ -1,6 +1,8 @@
 using api.Configuration;
 using api.Data;
+using api.Helpers;
 using api.Interfaces;
+using api.Mappers;
 using api.Middleware;
 using api.Models;
 using api.Repository;
@@ -89,11 +91,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+var logDirectory = Path.Combine(AppContext.BaseDirectory, "logs");
+Directory.CreateDirectory(logDirectory);
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
-    .WriteTo.File("C:/Users/apoli/Desktop/logs/log.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(logDirectory, "log.txt"), rollingInterval: RollingInterval.Day)
     .CreateLogger();
+
 builder.Host.UseSerilog();
 
 builder.Services.AddCors(options =>
@@ -130,4 +136,43 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        // Init Elasticsearch Indexes
+        var vacancyElastic = services.GetRequiredService<IVacancyElasticService>();
+        var jobseekerElastic = services.GetRequiredService<IJobseekerElasticService>();
+
+        await vacancyElastic.CreateIndexIfNotExistsAsync();
+        await jobseekerElastic.CreateIndexIfNotExistsAsync();
+
+        // Seed Identity Users & Company Data
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        var dbContext = services.GetRequiredService<ApplicationDbContext>();
+        var companyRepo = services.GetRequiredService<ICompanyRepository>();
+
+        await DataSeeder.SeedCompanyDataAsync(userManager, companyRepo, dbContext);
+
+        // Seed Admin
+        await DataSeeder.SeedAdminAsync(builder.Configuration["AdminPassword"], userManager);
+
+        // Reindex vacancies
+        var vacancyRepository = services.GetRequiredService<IVacancyRepository>();
+        var vacancies = await vacancyRepository.GetAllVacanciesAsync();
+        var vacancyElasticDtos = vacancies.Select(v => v.ToVacancyElasticDto()).ToList();
+        var vacancyResult = await vacancyElastic.AddOrUpdateVacancyBulkAsync(vacancyElasticDtos);
+
+        logger.LogInformation("Startup initialization completed successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred during application startup initialization.");
+    }
+}
+
 app.Run();
